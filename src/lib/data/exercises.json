@@ -1,0 +1,26 @@
+[
+	{
+		"id": "plank",
+		"name": "Plank",
+		"description": "",
+		"categories": ["core"]
+	},
+	{
+		"id": "pushups",
+		"name": "Push-Ups",
+		"description": "",
+		"categories": ["core", "arms", "upper-body"]
+	},
+	{
+		"id": "squats",
+		"name": "Squats",
+		"description": "",
+		"categories": ["legs"]
+	},
+	{
+		"id": "jumpingjacks",
+		"name": "Jumping Jacks",
+		"description": "",
+		"categories": ["cardio"]
+	}
+]
