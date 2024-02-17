@@ -3,12 +3,23 @@
 	import { writable } from 'svelte/store';
 
 	import '../app.css';
-	import excerciseData from '$lib/data/exercises.json';
+	import exerciseData from '$lib/data/exercises.json';
 
-	const excercises = writable(
-		excerciseData.map((excercise) => ({ ...excercise, selectedForWorkout: false }))
+	const { subscribe, update } = writable(
+		exerciseData.map((exercise) => ({ ...exercise, selected: false }))
 	);
-	setContext('excercises', excercises);
+
+	const exercises = {
+		subscribe,
+		select: (exercise, selected) => {
+			update(($exercises) => [
+				...$exercises.filter((e) => e.id !== exercise.id),
+				{ ...exercise, selected }
+			]);
+		}
+	};
+
+	setContext('exercises', exercises);
 </script>
 
 <slot />
