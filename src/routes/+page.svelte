@@ -1,17 +1,18 @@
-<script>
+<script lang="ts">
 	import { getContext } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { Circle, CheckCircle } from 'lucide-svelte';
-
+	import type { Exercise, ExerciseStore } from '$lib/types/customTypes';
+	import type { Writable } from 'svelte/store';
 	import ExerciseList from '../components/ExerciseList.svelte';
 
-	const exercises = getContext('exercises');
-	let exerciseLength = getContext('exerciseLength');
-	let restLength = getContext('restLength');
-	let repetitions = getContext('repetitions');
-	let setOrCycle = getContext('setOrCycle');
+	const exercises: ExerciseStore = getContext('exercises');
+	let exerciseLength: Writable<number> = getContext('exerciseLength');
+	let restLength: Writable<number> = getContext('restLength');
+	let repetitions: Writable<number> = getContext('repetitions');
+	let setOrCycle: Writable<string> = getContext('setOrCycle');
 
-	$: selectedExercisesAmount = $exercises.filter((e) => e.selected).length;
+	$: selectedExercisesAmount = $exercises.filter((e: Exercise) => e.selected).length;
 	$: workoutLength = ($exerciseLength + $restLength) * selectedExercisesAmount * $repetitions;
 </script>
 

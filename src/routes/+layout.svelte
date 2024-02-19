@@ -2,19 +2,21 @@
 	import '../app.css';
 	import { setContext } from 'svelte';
 	import { writable } from 'svelte/store';
-
+	import type { Exercise, ExerciseStore } from '$lib/types/customTypes';
 	import exerciseData from '$lib/data/exercises.json';
 
 	// exercises list store
-	const { subscribe, update } = writable(
-		exerciseData.map((exercise) => ({ ...exercise, selected: false }))
+	const { subscribe, update, set } = writable(
+		exerciseData.map((exercise: Exercise) => ({ ...exercise, selected: false }))
 	);
 
-	const exercises = {
+	const exercises: ExerciseStore = {
 		subscribe,
-		select: (exercise, selected: boolean) => {
+		set,
+		update,
+		select: (exercise: Exercise, selected: boolean): void => {
 			update(($exercises) => [
-				...$exercises.filter((e) => e.id !== exercise.id),
+				...$exercises.filter((e: Exercise) => e.id !== exercise.id),
 				{ ...exercise, selected }
 			]);
 		}

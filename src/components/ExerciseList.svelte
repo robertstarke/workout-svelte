@@ -1,14 +1,17 @@
-<script>
+<script lang="ts">
 	import { flip } from 'svelte/animate';
 	import { send, receive } from '../animation/exerciseTransition';
 	import { Square, CheckSquare } from 'lucide-svelte';
+	import type { ExerciseStore, Exercise } from '$lib/types/customTypes';
 
-	export let exercises;
+	export let exercises: ExerciseStore;
 	export let selected = false;
+
+	$: filteredExercises = $exercises.filter((e: Exercise) => e.selected === selected);
 </script>
 
 <ul class="space-y-4">
-	{#each $exercises.filter((e) => e.selected === selected) as exercise (exercise.id)}
+	{#each filteredExercises as exercise (exercise.id)}
 		<li
 			in:receive={{ key: exercise.id }}
 			out:send={{ key: exercise.id }}
