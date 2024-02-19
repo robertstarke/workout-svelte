@@ -7,7 +7,7 @@
 	},
 	{
 		"id": "pushups",
-		"name": "Push-Ups",
+		"name": "Push Ups",
 		"description": "",
 		"categories": ["core", "arms", "upper-body"]
 	},
@@ -22,5 +22,11 @@
 		"name": "Jumping Jacks",
 		"description": "",
 		"categories": ["cardio"]
+	},
+	{
+		"id": "situps",
+		"name": "Sit Ups",
+		"description": "",
+		"categories": ["core"]
 	}
 ]
