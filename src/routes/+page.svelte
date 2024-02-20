@@ -5,6 +5,7 @@
 	import type { Exercise, ExerciseStore } from '$lib/types/customTypes';
 	import type { Writable } from 'svelte/store';
 	import ExerciseList from '../components/ExerciseList.svelte';
+	import FormattedTime from '../components/FormattedTime.svelte';
 
 	const exercises: ExerciseStore = getContext('exercises');
 	let exerciseLength: Writable<number> = getContext('exerciseLength');
@@ -33,10 +34,7 @@
 		<div class="col-span-1 col-start-2 row-start-2">
 			<div class="block w-full p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center">
 				<span class="block mb-2 text-2xl">Total Workout Time</span>
-				{#if workoutLength / 3600 >= 1}{Math.floor(workoutLength / 3600)}h{/if}
-				{#if workoutLength % 3600 !== 0}{Math.floor((workoutLength % 3600) / 60)}m{/if}
-				{#if workoutLength % 60 !== 0}{workoutLength % 60}s{/if}
-				{#if workoutLength === 0}N/A{/if}
+				<FormattedTime timeInSeconds={workoutLength} />
 			</div>
 			<div class="mt-4 flex flex-col gap-4">
 				<label for="exerciseLength" class="flex flex-row items-center gap-4">

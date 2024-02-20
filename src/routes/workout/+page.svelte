@@ -4,6 +4,9 @@
 	import { getContext } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import FormattedTime from '../../components/FormattedTime.svelte';
+	import CircularProgress from '../../components/CircularProgress.svelte';
+	import { X, Pause, Play } from 'lucide-svelte';
 
 	const exercises: ExerciseStore = getContext('exercises');
 	const exerciseLength: Writable<number> = getContext('exerciseLength');
@@ -13,7 +16,6 @@
 
 	const selectedExercises: Exercise[] = $exercises.filter((e: Exercise) => e.selected);
 	let workoutExercises: Exercise[] = selectedExercises;
-	// TODO handle repetitions
 
 	// handle empty exercises e.g. after reload
 	// TODO persists selected exercises in local or session storage
@@ -34,6 +36,7 @@
 
 	let remainingTime: number =
 		($exerciseLength + $restLength) * selectedExercises.length * $repetitions;
+	const fullTime: number = remainingTime;
 
 	let currentPhase = 'rest';
 	let phaseTimer = $restLength;
@@ -57,39 +60,65 @@
 		}
 	};
 
-	let timer = setInterval(tick, 200);
+	let timer = setInterval(tick, 1000);
 
 	let paused = false;
 	const pauseHandler = () => {
 		if (paused) {
-			timer = setInterval(tick, 200);
+			timer = setInterval(tick, 1000);
 		} else {
 			clearInterval(timer);
 		}
 		paused = !paused;
 	};
+
+	$: normalizedTime = (remainingTime / fullTime) * 100;
 </script>
 
-<div class="p-8">
-	<div>Time left in workout: {remainingTime}</div>
-	{#if remainingTime <= 0}
-		<div>Congratulations you finished the workout</div>
-	{:else}
-		<div>{currentPhase}</div>
-		<div>
-			{currentPhase === 'rest' ? 'Next Exercise' : 'Current Exercise'}: {activeExercise.name}
+<div class="w-lvh">
+	<div class="progressBar w-full h-6 bg-stone-400">
+		<div
+			class="h-full bg-rose-500 transition-all duration-1000 ease-linear"
+			style="width: {normalizedTime}%;"
+		></div>
+	</div>
+	<div class="h-32 flex flex-row justify-between items-center p-8">
+		<a href="/" title="Back to setup" class="flex-none">
+			<button
+				class="aspect-square h-20 flex justify-center items-center p-4 bg-rose-500 rounded-md text-zinc-800 text-3xl hover:bg-rose-600 hover:text-zinc-900"
+				><X size="40" /></button
+			>
+		</a>
+		<div class="w-full text-3xl text-center">
+			<FormattedTime timeInSeconds={remainingTime} />
 		</div>
-		<div>Time: {phaseTimer}</div>
-		<div>Round: {roundIndex}</div>
-		<button
-			on:click={pauseHandler}
-			class="p-4 bg-rose-500 rounded-md text-zinc-800 hover:bg-rose-600 hover:text-zinc-900"
-		>
-			{#if paused}
-				Continue
-			{:else}
-				Pause
-			{/if}
-		</button>
-	{/if}
+		<div class="flex-none">
+			<button
+				on:click={pauseHandler}
+				disabled={remainingTime <= 0}
+				class="aspect-square h-20 flex justify-center items-center p-4 bg-rose-500 rounded-md text-zinc-800 hover:bg-rose-600 hover:text-zinc-900 disabled:bg-stone-400 disabled:hover:text-zinc-800"
+			>
+				{#if paused}
+					<Play size="40" />
+				{:else}
+					<Pause size="40" />
+				{/if}
+			</button>
+		</div>
+	</div>
+	<div class="hidden flex-none">
+		{#if remainingTime <= 0}
+			<div>Congratulations you finished the workout</div>
+		{/if}
+		{currentPhase === 'rest' ? 'Next Exercise' : 'Current Exercise'}: {activeExercise?.name}
+	</div>
+	<div class="custom-height">
+		<CircularProgress />
+	</div>
 </div>
+
+<style>
+	.custom-height {
+		height: calc(100lvh - 9.5rem);
+	}
+</style>
