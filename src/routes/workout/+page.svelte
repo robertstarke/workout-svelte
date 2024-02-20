@@ -12,6 +12,7 @@
 	const setOrCycle: Writable<string> = getContext('setOrCycle');
 
 	const selectedExercises: Exercise[] = $exercises.filter((e: Exercise) => e.selected);
+	let workoutExercises: Exercise[] = selectedExercises;
 	// TODO handle repetitions
 
 	// handle empty exercises e.g. after reload
@@ -20,13 +21,24 @@
 		goto('/');
 	}
 
+	if ($repetitions > 1) {
+		const helperArray = Array($repetitions).fill('');
+		if ($setOrCycle === 'set') {
+			workoutExercises = selectedExercises.flatMap((exercise: Exercise) =>
+				helperArray.map(() => exercise)
+			);
+		} else if ($setOrCycle === 'cycle') {
+			workoutExercises = helperArray.flatMap(() => [...selectedExercises]);
+		}
+	}
+
 	let remainingTime: number =
 		($exerciseLength + $restLength) * selectedExercises.length * $repetitions;
 
 	let currentPhase = 'rest';
 	let phaseTimer = $restLength;
 	let roundIndex = 0;
-	let activeExercise = selectedExercises[0];
+	let activeExercise = workoutExercises[0];
 
 	const tick = () => {
 		remainingTime--;
@@ -41,7 +53,7 @@
 			phaseTimer = $restLength;
 			currentPhase = 'rest';
 			roundIndex++;
-			activeExercise = selectedExercises[roundIndex];
+			activeExercise = workoutExercises[roundIndex];
 		}
 	};
 
