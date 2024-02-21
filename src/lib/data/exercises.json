@@ -1,21 +1,87 @@
 [
 	{
-		"id": "plank",
-		"name": "Plank",
-		"description": "Lorem Ipsum",
+		"id": "anklehops",
+		"name": "Ankle Hops",
+		"description": "Hops from toes; calf raise then hop",
+		"categories": ["legs"]
+	},
+	{
+		"id": "bearcrawl",
+		"name": "Bear Crawl",
+		"description": "",
+		"categories": ["core", "arms"]
+	},
+	{
+		"id": "birddogs",
+		"name": "Bird Dogs",
+		"description": "With hands and knees on floor, hold one leg up and straight with alterating arm out",
 		"categories": ["core"]
 	},
 	{
-		"id": "pushups",
-		"name": "Push Ups",
+		"id": "burpees",
+		"name": "Burpees",
 		"description": "",
-		"categories": ["core", "arms", "upper-body"]
+		"categories": ["core", "arms", "legs"]
 	},
 	{
-		"id": "squats",
-		"name": "Squats",
+		"id": "calfraises",
+		"name": "Calf Raises",
 		"description": "",
 		"categories": ["legs"]
+	},
+	{
+		"id": "crunches",
+		"name": "Crunches",
+		"description": "",
+		"categories": ["core"]
+	},
+	{
+		"id": "firehydrants",
+		"name": "Fire Hydrants",
+		"description": "On hands and knees, raise one leg to the side 90 degrees",
+		"categories": ["core"]
+	},
+	{
+		"id": "forwardlunge",
+		"name": "Forward Lunge",
+		"description": "",
+		"categories": ["legs"]
+	},
+	{
+		"id": "fullsitup",
+		"name": "Full Sit Ups",
+		"description": "Lying on back, sit up and touch toes",
+		"categories": ["core"]
+	},
+	{
+		"id": "heeltouches",
+		"name": "Heel Touches",
+		"description": "In sit up position, alternate side to side touching heels",
+		"categories": ["core"]
+	},
+	{
+		"id": "highkneesrun",
+		"name": "High Knees Run",
+		"description": "Run in place bringing knees up 90 degrees",
+		"categories": ["cardio"]
+	},
+	{
+		"id": "hollowbodyrock",
+		"name": "Hollow Body Rock",
+		"description": "On back, lift feet and arms and head off the floor, hold and rock back and forth",
+		"categories": ["core"]
+	},
+	{
+		"id": "hurdles",
+		"name": "Hurdles",
+		"description": "Standing, feet together, bring knee up and over an imaginary hurdle, tap floor, then return",
+		"categories": ["legs"]
+	},
+	{
+		"id": "jumprope",
+		"name": "Jump Rope",
+		"description": "Jump in place with an invisible jump rope",
+		"categories": ["cardio"]
 	},
 	{
 		"id": "jumpingjacks",
@@ -24,9 +90,117 @@
 		"categories": ["cardio"]
 	},
 	{
+		"id": "jumpingsplitsquat",
+		"name": "Jumping Split Squat",
+		"description": "In lunge position, jump up, then return",
+		"categories": ["core", "legs", "cardio"]
+	},
+	{
+		"id": "longjumpjogback",
+		"name": "Long Jump With Jog Back",
+		"description": "From standing, jump forward, then tiny steps jog back",
+		"categories": ["cardio"]
+	},
+	{
+		"id": "marchsteps",
+		"name": "March Steps",
+		"description": "",
+		"categories": ["cardio"]
+	},
+	{
+		"id": "plankjacks",
+		"name": "Plank Jacks",
+		"description": "Bring legs in and out while in a plank",
+		"categories": ["core", "legs"]
+	},
+	{
+		"id": "punches",
+		"name": "Punches",
+		"description": "",
+		"categories": ["arms"]
+	},
+	{
+		"id": "push-upsdiamond",
+		"name": "Push-Ups: Diamond",
+		"description": "Push ups with hands touching",
+		"categories": ["core", "arms"]
+	},
+	{
+		"id": "push-upswidestance",
+		"name": "Push-Ups: Widestance",
+		"description": "Push ups with wide arm stance",
+		"categories": ["core", "arms"]
+	},
+	{
+		"id": "raisedlegplank",
+		"name": "Raised Leg Plank",
+		"description": "In plank position, hold one leg up",
+		"categories": ["core"]
+	},
+	{
+		"id": "reverselunge",
+		"name": "Reverse Lunge",
+		"description": "",
+		"categories": ["legs"]
+	},
+	{
+		"id": "russiantwists",
+		"name": "Russian Twists",
+		"description": "",
+		"categories": ["core"]
+	},
+	{
+		"id": "sidecrunch",
+		"name": "Side Crunch",
+		"description": "",
+		"categories": ["core"]
+	},
+	{
+		"id": "sideplanks",
+		"name": "Side Planks",
+		"description": "",
+		"categories": ["core"]
+	},
+	{
 		"id": "situps",
 		"name": "Sit Ups",
 		"description": "",
 		"categories": ["core"]
+	},
+	{
+		"id": "skippinginplace",
+		"name": "Skipping In Place",
+		"description": "",
+		"categories": ["cardio"]
+	},
+	{
+		"id": "squats",
+		"name": "Squats",
+		"description": "",
+		"categories": ["legs"]
+	},
+	{
+		"id": "sumosquat",
+		"name": "Sumo Squat",
+		"description": "Wide leg squat, hands touch ground",
+		"categories": ["legs"]
+	},
+	{
+		"id": "swimmer",
+		"name": "Swimmer",
+		"description": "On stomach, alternate hands and legs tapping ground",
+		"categories": ["core", "arms", "legs"]
+	},
+	{
+		"id": "verticaljumps",
+		"name": "Vertical Jumps",
+		"description": "Jump as high as possible, arms up",
+		"categories": ["legs"]
+	},
+	{
+		"id": "wallsquat",
+		"name": "Wall Squat",
+		"description": "",
+		"categories": ["legs"]
 	}
 ]
