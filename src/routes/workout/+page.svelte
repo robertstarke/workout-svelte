@@ -89,8 +89,20 @@
 	let paused = false;
 	const pauseHandler = () => {
 		if (paused) {
+			if (browser) {
+				const el = document.getElementById('wa-progress');
+				if (el) {
+					el.style.animationPlayState = 'running';
+				}
+			}
 			timer = setInterval(tick, 1000);
 		} else {
+			if (browser) {
+				const el = document.getElementById('wa-progress');
+				if (el) {
+					el.style.animationPlayState = 'paused';
+				}
+			}
 			clearInterval(timer);
 		}
 		paused = !paused;
@@ -129,11 +141,6 @@
 				{/if}
 			</button>
 		</div>
-	</div>
-	<div class="hidden flex-none">
-		{#if remainingTime <= 0}
-			<div>Congratulations you finished the workout</div>
-		{/if}
 	</div>
 	<div class="custom-height">
 		<CircularProgress

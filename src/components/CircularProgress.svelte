@@ -1,8 +1,19 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
+
 	export let fullTime: number;
 	export let remainingTime: number;
 
-	$: normalizedTime = (352 / fullTime) * remainingTime;
+	$: if (browser && remainingTime === fullTime) {
+		const el = document.getElementById('wa-progress');
+		if (el) {
+			if (el.style.animationName == 'progress-1') {
+				el.style.animation = `progress-2 ${fullTime}s linear`;
+			} else {
+				el.style.animation = `progress-1 ${fullTime}s linear`;
+			}
+		}
+	}
 </script>
 
 <div class="relative h-full flex justify-center items-stretch">
@@ -21,20 +32,21 @@
 			class="stroke-current text-stone-500"
 			stroke-width="3"
 		></circle>
-		<g class="origin-center transition-all duration-1000 ease-linear -rotate-90 transform">
+		<g class="origin-center -rotate-90 transform">
 			<circle
+				id="wa-progress"
 				cx="64"
 				cy="64"
 				r="56"
 				fill="none"
-				class="wa-progress stroke-current text-rose-500"
+				class="stroke-current text-rose-500"
 				stroke-width="3"
 				stroke-dasharray="352"
-				style="stroke-dashoffset: {normalizedTime};"
+				stroke-dashoffset="352"
+				style="animation: progress-1 {fullTime}s linear;"
 			></circle>
 		</g>
 	</svg>
-	<!-- TODO animate-ping when on last 3 seconds -->
 	<div
 		class="absolute flex justify-center items-center aspect-square h-4/5 top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2 rounded-full"
 	>
@@ -61,17 +73,21 @@
 			opacity: 0;
 		}
 	}
-	.wa-progress {
-		animation-name: move;
-		animation-timing-function: linear;
-	}
 
-	@keyframes move {
+	@keyframes -global-progress-1 {
 		from {
 			stroke-dashoffset: 352;
 		}
 		to {
-			stroke-dashoffset: -10;
+			stroke-dashoffset: 0;
+		}
+	}
+	@keyframes -global-progress-2 {
+		from {
+			stroke-dashoffset: 352;
+		}
+		to {
+			stroke-dashoffset: 0;
 		}
 	}
 </style>
