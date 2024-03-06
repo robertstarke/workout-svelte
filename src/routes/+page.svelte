@@ -34,37 +34,37 @@
 		<div class="col-span-1 col-start-2 row-start-2">
 			<div class="block w-full p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center">
 				<span class="block mb-2 text-2xl">Total Workout Time</span>
-				<FormattedTime timeInSeconds={workoutLength} />
+				<FormattedTime timeInMs={workoutLength} />
 			</div>
 			<div class="mt-4 flex flex-col gap-4">
 				<label for="exerciseLength" class="flex flex-row items-center gap-4">
 					<span class="w-28 p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center"
-						>{$exerciseLength}s</span
+						>{$exerciseLength / 1000}s</span
 					>
 					<span class="flex flex-col">
 						<span class="text-xl">Exercise Length</span>
 						<input
 							id="exerciseLength"
 							type="range"
-							step="5"
-							min="10"
-							max="180"
+							step="5000"
+							min="10000"
+							max="180000"
 							bind:value={$exerciseLength}
 						/>
 					</span>
 				</label>
 				<label for="restLength" class="flex flex-row items-center gap-4">
 					<span class="w-28 p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center"
-						>{$restLength}s</span
+						>{$restLength / 1000}s</span
 					>
 					<span class="flex flex-col">
 						<span class="text-xl">Rest Length</span>
 						<input
 							id="restLength"
 							type="range"
-							step="5"
-							min="0"
-							max="120"
+							step="5000"
+							min="5000"
+							max="120000"
 							bind:value={$restLength}
 						/>
 					</span>

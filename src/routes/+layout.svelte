@@ -23,8 +23,8 @@
 	};
 
 	setContext('exercises', exercises);
-	setContext('exerciseLength', writable(45));
-	setContext('restLength', writable(15));
+	setContext('exerciseLength', writable(45000));
+	setContext('restLength', writable(15000));
 	setContext('repetitions', writable(1));
 	setContext('setOrCycle', writable('cycle'));
 </script>

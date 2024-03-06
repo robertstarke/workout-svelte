@@ -5,20 +5,91 @@
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 	import FormattedTime from '../../components/FormattedTime.svelte';
-	import CircularProgress from '../../components/CircularProgress.svelte';
 	import { X, Pause, Play } from 'lucide-svelte';
 
+	// Stores
 	const exercises: ExerciseStore = getContext('exercises');
 	const exerciseLength: Writable<number> = getContext('exerciseLength');
 	const restLength: Writable<number> = getContext('restLength');
 	const repetitions: Writable<number> = getContext('repetitions');
 	const setOrCycle: Writable<string> = getContext('setOrCycle');
 
+	const size = 128;
+	const trackWidth = 6;
+	const indicatorWidth = 3;
+	let intervalLength: number = $restLength;
+	let paused: boolean = false;
+	let phase: string = 'rest';
 	const selectedExercises: Exercise[] = $exercises.filter((e: Exercise) => e.selected);
 	let workoutExercises: Exercise[] = selectedExercises;
+	const fullTime: number =
+		($exerciseLength + $restLength) * selectedExercises.length * $repetitions;
+	let remainingTime: number = fullTime;
 
-	// handle empty exercises e.g. after reload
-	// TODO persists selected exercises in local or session storage
+	const center = size / 2;
+	const radius = center - (trackWidth > indicatorWidth ? trackWidth : indicatorWidth);
+	const dashArray = 2 * Math.PI * radius;
+	let dashOffset = dashArray;
+
+	// Animations
+	const animationFrames = [{ strokeDashoffset: dashArray }, { strokeDashoffset: 0 }];
+	const restAnimationOptions = { id: 'restA', duration: $restLength };
+	const exerciseAnimationOptions = { id: 'exerciseA', duration: $exerciseLength };
+
+	// Audio Beeps
+	const beep = (isLastBeep: boolean) => {
+		if (browser) {
+			const audioContext = new AudioContext();
+			const beep = audioContext.createOscillator();
+			beep.frequency.value = isLastBeep ? 540 : 1240;
+			const duration = isLastBeep ? 0.75 : 0.2;
+			beep.connect(audioContext.destination);
+			beep.start();
+			beep.stop(audioContext.currentTime + duration);
+		}
+	};
+
+	// tick callback
+	const intervalCallback = () => {
+		if (paused) {
+			clearInterval(interval);
+			return;
+		}
+		if (intervalLength <= 3000 && intervalLength % 1000 === 0) {
+			if (intervalLength < 1000) {
+				beep(true);
+			} else {
+				beep(false);
+			}
+		}
+		if (intervalLength <= 0) {
+			clearInterval(interval);
+			phase = phase === 'rest' ? 'exercise' : 'rest';
+			intervalLength = phase === 'rest' ? $restLength : $exerciseLength;
+			interval = setInterval(intervalCallback, 100);
+		}
+		intervalLength = intervalLength - 100;
+		remainingTime = remainingTime - 100;
+	};
+
+	let interval = setInterval(intervalCallback, 100);
+
+	$: if (browser) {
+		const indicatorElement = document.getElementById('wa-indicator');
+
+		let restAnimation = indicatorElement?.animate(animationFrames, restAnimationOptions);
+		let exerciseAnimation = indicatorElement?.animate(animationFrames, exerciseAnimationOptions);
+		restAnimation?.cancel();
+		exerciseAnimation?.cancel();
+		let animation = restAnimation;
+
+		animation = phase === 'rest' ? restAnimation : exerciseAnimation;
+
+		if (animation) {
+			animation.currentTime = intervalLength;
+		}
+	}
+
 	if (browser && selectedExercises.length === 0) {
 		goto('/');
 	}
@@ -34,81 +105,12 @@
 		}
 	}
 
-	let remainingTime: number =
-		($exerciseLength + $restLength) * selectedExercises.length * $repetitions;
-	const fullTime: number = remainingTime;
-
-	let currentPhase = 'rest';
-	let phaseTimer = $restLength;
 	let roundIndex = 0;
 	let activeExercise = workoutExercises[0];
 
-	function beep(lastBeep: boolean) {
-		const normalBeep = new Audio(
-			'data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU='
-		);
+	$: normalizedTime = ((remainingTime - 1000) / fullTime) * 100;
 
-		const finalBeep = () => {
-			let A = new AudioContext();
-			let o = A.createOscillator();
-			o.connect(A.destination);
-			o.start(0);
-			setTimeout(() => o.stop(0), 900);
-		};
-
-		if (lastBeep) {
-			finalBeep();
-		} else {
-			normalBeep.play();
-		}
-	}
-
-	const tick = () => {
-		remainingTime--;
-		phaseTimer--;
-		if (remainingTime <= 0) {
-			clearInterval(timer);
-		}
-		if (currentPhase === 'rest' && phaseTimer < 0) {
-			phaseTimer = $exerciseLength;
-			currentPhase = 'exercise';
-		} else if (currentPhase === 'exercise' && phaseTimer < 0) {
-			phaseTimer = $restLength;
-			currentPhase = 'rest';
-			roundIndex++;
-			activeExercise = workoutExercises[roundIndex];
-		}
-
-		if (phaseTimer < 4) {
-			beep(phaseTimer === 0);
-		}
-	};
-
-	let timer = setInterval(tick, 1000);
-
-	let paused = false;
-	const pauseHandler = () => {
-		if (paused) {
-			if (browser) {
-				const el = document.getElementById('wa-progress');
-				if (el) {
-					el.style.animationPlayState = 'running';
-				}
-			}
-			timer = setInterval(tick, 1000);
-		} else {
-			if (browser) {
-				const el = document.getElementById('wa-progress');
-				if (el) {
-					el.style.animationPlayState = 'paused';
-				}
-			}
-			clearInterval(timer);
-		}
-		paused = !paused;
-	};
-
-	$: normalizedTime = (remainingTime / fullTime) * 100;
+	const pauseHandler = () => {};
 </script>
 
 <div class="w-lvh">
@@ -126,7 +128,7 @@
 			>
 		</a>
 		<div class="w-full text-3xl text-center">
-			<FormattedTime timeInSeconds={remainingTime} />
+			<FormattedTime timeInMs={remainingTime} />
 		</div>
 		<div class="flex-none">
 			<button
@@ -143,24 +145,74 @@
 		</div>
 	</div>
 	<div class="custom-height">
-		<CircularProgress
-			fullTime={currentPhase === 'rest' ? $restLength : $exerciseLength}
-			remainingTime={phaseTimer}
-		>
-			<div class="text-3xl text-center">
-				{#if remainingTime > 0}
-					<div class="mb-6">{activeExercise.name}</div>
-					<div><FormattedTime timeInSeconds={phaseTimer} /></div>
-				{:else}
-					Congratulations you finished the excercise
-				{/if}
+		<div class="relative h-full flex justify-center items-stretch">
+			<svg
+				class="z-30 w-auto h-full -rotate-90"
+				width={size}
+				height={size}
+				viewBox={`0 0 ${size} ${size}`}
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<circle
+					id="wa-track"
+					cx={center}
+					cy={center}
+					r={radius}
+					fill="none"
+					class="stroke-current text-stone-400 fill-transparent"
+					stroke-width={trackWidth}
+				></circle>
+				<circle
+					id="wa-indicator"
+					cx={center}
+					cy={center}
+					r={radius}
+					fill="none"
+					class="stroke-current text-rose-500 fill-transparent"
+					stroke-width={indicatorWidth}
+					stroke-linecap="round"
+					stroke-dasharray={dashArray}
+					stroke-dashoffset={dashOffset}
+				></circle>
+			</svg>
+			<div
+				class="absolute flex justify-center items-center aspect-square h-4/5 top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2 rounded-full"
+			>
+				<div
+					class="z-20 flex justify-center items-center aspect-square h-full rounded-full bg-rose-300 overflow-hidden"
+				>
+					<div class="text-3xl text-center">
+						{#if remainingTime > 0}
+							<div class="mb-6">{activeExercise.name}</div>
+							<div><FormattedTime timeInMs={intervalLength} /></div>
+						{:else}
+							Congratulations you finished the excercise
+						{/if}
+					</div>
+				</div>
+				<div
+					class:wa-animate-ping={intervalLength < 4000}
+					class="z-10 absolute aspect-square h-full rounded-full bg-rose-500"
+				></div>
 			</div>
-		</CircularProgress>
+		</div>
 	</div>
 </div>
 
 <style>
 	.custom-height {
 		height: calc(100lvh - 9.5rem);
+	}
+
+	.wa-animate-ping {
+		animation: ping 1s cubic-bezier(0.39, 0.58, 0.57, 1) infinite;
+	}
+
+	@keyframes ping {
+		75%,
+		100% {
+			transform: scale(1.15);
+			opacity: 0;
+		}
 	}
 </style>

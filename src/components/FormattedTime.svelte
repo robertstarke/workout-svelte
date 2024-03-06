@@ -1,5 +1,6 @@
 <script>
-	export let timeInSeconds = 0;
+	export let timeInMs = 0;
+	$: timeInSeconds = Math.ceil(timeInMs / 1000);
 </script>
 
 <span>
