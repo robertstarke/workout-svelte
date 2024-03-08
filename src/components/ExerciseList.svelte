@@ -2,21 +2,20 @@
 	import { flip } from 'svelte/animate';
 	import { send, receive } from '../animation/exerciseTransition';
 	import { Square, CheckSquare } from 'lucide-svelte';
-	import type { ExerciseStore, Exercise } from '$lib/types/customTypes';
+	import type { Exercise } from '$lib/types/customTypes';
+	import { createEventDispatcher } from 'svelte';
 
-	export let exercises: ExerciseStore;
-	export let selected = false;
+	export let exercises: Exercise[];
 
-	$: filteredExercises = $exercises.filter((e: Exercise) => e.selected === selected);
+	const dispatch = createEventDispatcher();
+	const selectExercise = (exercise: Exercise, checked: boolean) => {
+		dispatch('selectExercise', { exercise, checked });
+	};
 </script>
 
 <ul class="space-y-4">
-	{#each filteredExercises as exercise (exercise.id)}
-		<li
-			in:receive={{ key: exercise.id }}
-			out:send={{ key: exercise.id }}
-			animate:flip={{ duration: 200 }}
-		>
+	{#each exercises as exercise (exercise.id)}
+		<li>
 			<label
 				for={exercise.id}
 				class="w-full h-full flex flex-row justify-between items-stretch bg-zinc-900 rounded-md cursor-pointer"
@@ -26,8 +25,8 @@
 					class="hidden peer"
 					checked={exercise.selected}
 					id={exercise.id}
-					name={selected ? 'selectedExercises' : 'exercises'}
-					on:change={(e) => exercises.select(exercise, e.currentTarget.checked)}
+					name="exercises"
+					on:change={(e) => selectExercise(exercise, e.currentTarget.checked)}
 				/>
 				<span class="px-4 py-2">
 					<span class="block text-xl text-rose-500">{exercise.name}</span>
@@ -37,7 +36,7 @@
 					class="flex-none flex items-center justify-center w-16 rounded-r-md bg-stone-400 text-zinc-800 peer-checked:bg-rose-500"
 				>
 					<span class="text-4xl">
-						{#if selected}
+						{#if exercise.selected}
 							<CheckSquare />
 						{:else}
 							<Square />

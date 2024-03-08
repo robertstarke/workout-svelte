@@ -13,8 +13,18 @@
 	let repetitions: Writable<number> = getContext('repetitions');
 	let setOrCycle: Writable<string> = getContext('setOrCycle');
 
-	$: selectedExercisesAmount = $exercises.filter((e: Exercise) => e.selected).length;
+	$: selectedExercises = $exercises.filter((e: Exercise) => e.selected);
+	$: selectedExercisesAmount = selectedExercises.length;
 	$: workoutLength = ($exerciseLength + $restLength) * selectedExercisesAmount * $repetitions;
+
+	const handleSelectExerciseEvent = (event: {
+		detail: { exercise: Exercise; checked: boolean };
+	}) => {
+		const exercise = event.detail.exercise;
+		const checked = event.detail.checked;
+
+		exercises.select(exercise, checked);
+	};
 </script>
 
 <div class="mx-auto p-8">
@@ -121,12 +131,12 @@
 		<div class="grid grid-cols-subgrid col-span-2 justify-center gap-8">
 			<div>
 				<h2 class="mb-4 text-2xl text-zinc-800">Available Exercises</h2>
-				<ExerciseList {exercises} selected={false} />
+				<ExerciseList exercises={$exercises} on:selectExercise={handleSelectExerciseEvent} />
 			</div>
 
 			<div>
 				<h2 class="mb-4 text-2xl text-zinc-800">Selected Exercises</h2>
-				<ExerciseList {exercises} selected={true} />
+				<ExerciseList exercises={selectedExercises} />
 			</div>
 		</div>
 	</section>
