@@ -2,28 +2,45 @@
 	import { getContext } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { Circle, CheckCircle } from 'lucide-svelte';
-	import type { Exercise, ExerciseStore } from '$lib/types/customTypes';
+	import type { Exercise, ExerciseStore, SelectedExerciseStore } from '$lib/types/customTypes';
 	import type { Writable } from 'svelte/store';
 	import ExerciseList from '../components/ExerciseList.svelte';
+	import DraggableExerciseList from '../components/DraggableExerciseList.svelte';
 	import FormattedTime from '../components/FormattedTime.svelte';
 
 	const exercises: ExerciseStore = getContext('exercises');
-	let exerciseLength: Writable<number> = getContext('exerciseLength');
-	let restLength: Writable<number> = getContext('restLength');
-	let repetitions: Writable<number> = getContext('repetitions');
-	let setOrCycle: Writable<string> = getContext('setOrCycle');
+	const selectedExercises: SelectedExerciseStore = getContext('selectedExercises');
+	const exerciseLength: Writable<number> = getContext('exerciseLength');
+	const restLength: Writable<number> = getContext('restLength');
+	const repetitions: Writable<number> = getContext('repetitions');
+	const setOrCycle: Writable<string> = getContext('setOrCycle');
 
-	$: selectedExercises = $exercises.filter((e: Exercise) => e.selected);
-	$: selectedExercisesAmount = selectedExercises.length;
+	$: selectedExercisesAmount = $selectedExercises.length;
 	$: workoutLength = ($exerciseLength + $restLength) * selectedExercisesAmount * $repetitions;
 
 	const handleSelectExerciseEvent = (event: {
 		detail: { exercise: Exercise; checked: boolean };
 	}) => {
-		const exercise = event.detail.exercise;
-		const checked = event.detail.checked;
+		const exercise: Exercise = event.detail.exercise;
+		const checked: boolean = event.detail.checked;
 
 		exercises.select(exercise, checked);
+
+		if (checked) {
+			selectedExercises.add(exercise);
+		} else {
+			selectedExercises.remove(exercise);
+		}
+	};
+	const handleRemoveExerciseEvent = (event: { detail: { exercise: Exercise } }) => {
+		const exercise = event.detail.exercise;
+		exercises.select(exercise, false);
+		selectedExercises.remove(exercise);
+	};
+	const handleSwapExerciseEvent = (event: { detail: { indexOld: number; indexNew: number } }) => {
+		const indexOld: number = event.detail.indexOld;
+		const indexNew: number = event.detail.indexNew;
+		selectedExercises.swap(indexOld, indexNew);
 	};
 </script>
 
@@ -136,7 +153,11 @@
 
 			<div>
 				<h2 class="mb-4 text-2xl text-zinc-800">Selected Exercises</h2>
-				<ExerciseList exercises={selectedExercises} />
+				<DraggableExerciseList
+					exercises={$selectedExercises}
+					on:removeExercise={handleRemoveExerciseEvent}
+					on:swapExercise={handleSwapExerciseEvent}
+				/>
 			</div>
 		</div>
 	</section>

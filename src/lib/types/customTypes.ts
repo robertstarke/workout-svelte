@@ -13,5 +13,7 @@ export interface ExerciseStore extends Writable<Exercise[]> {
 }
 
 export interface SelectedExerciseStore extends Writable<Exercise[]> {
+  add: (exercise: Exercise) => void;
+  remove: (exercise: Exercise) => void;
   swap: (indexOld: number, indexNew: number) => void;
 }

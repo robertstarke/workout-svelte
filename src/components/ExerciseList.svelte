@@ -14,7 +14,7 @@
 </script>
 
 <ul class="space-y-4">
-	{#each exercises as exercise (exercise.id)}
+	{#each exercises as exercise}
 		<li>
 			<label
 				for={exercise.id}

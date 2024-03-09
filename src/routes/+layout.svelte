@@ -6,16 +6,17 @@
 	import exerciseData from '$lib/data/exercises.json';
 
 	// exercises list store
-	const { subscribe, update, set } = writable(
-		exerciseData.map((exercise) => ({ ...exercise, selected: false }))
-	);
-
+	const exerciseArray: Exercise[] = exerciseData.map((exercise) => ({
+		...exercise,
+		selected: false
+	}));
+	const exerciseWritable = writable(exerciseArray);
 	const exercises: ExerciseStore = {
-		subscribe,
-		set,
-		update,
+		subscribe: exerciseWritable.subscribe,
+		set: exerciseWritable.set,
+		update: exerciseWritable.update,
 		select: (exercise: Exercise, selected: boolean): void => {
-			update(($exercises) => {
+			exerciseWritable.update(($exercises): Exercise[] => {
 				let changeIndex = $exercises.findIndex((e: Exercise) => e.id === exercise.id);
 				$exercises[changeIndex].selected = selected;
 				return $exercises;
@@ -23,14 +24,29 @@
 		}
 	};
 
-	const { subscribe: subscribeSelected, update: updateSelected, set: setSelected } = writable([]);
+	const selectedExerciseArray: Exercise[] = [];
+	const selectedWritable = writable(selectedExerciseArray);
 	const selectedExercises: SelectedExerciseStore = {
-		subscribeSelected,
-		setSelected,
-		updateSelected,
-		//add: (exercise: Exercise) => {update(($selectedExercises) => $selectedExercises = [...$selectedExercises, exercise])},
-		swap: (indexOld: number, indexNew: number) => {
-			update(($selectedExercises) =>
+		subscribe: selectedWritable.subscribe,
+		set: selectedWritable.set,
+		update: selectedWritable.update,
+		add: (exercise: Exercise): void => {
+			selectedWritable.update(($selectedExercises): Exercise[] => [
+				...$selectedExercises,
+				exercise
+			]);
+		},
+		remove: (exercise: Exercise): void => {
+			selectedWritable.update(($selectedExercises): Exercise[] => {
+				const index = $selectedExercises.findIndex((e) => e.id === exercise.id);
+				if (index >= 0) {
+					return $selectedExercises.toSpliced(index, 1);
+				}
+				return $selectedExercises;
+			});
+		},
+		swap: (indexOld: number, indexNew: number): void => {
+			selectedWritable.update(($selectedExercises): Exercise[] =>
 				$selectedExercises.toSpliced(indexNew, 0, $selectedExercises.toSpliced(indexOld, 1)[0])
 			);
 		}
@@ -38,8 +54,8 @@
 
 	setContext('exercises', exercises);
 	setContext('selectedExercises', selectedExercises);
-	setContext('exerciseLength', writable(45));
-	setContext('restLength', writable(15));
+	setContext('exerciseLength', writable(45000));
+	setContext('restLength', writable(15000));
 	setContext('repetitions', writable(1));
 	setContext('setOrCycle', writable('cycle'));
 </script>
