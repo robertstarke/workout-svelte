@@ -37,16 +37,18 @@
 		exercises.select(exercise, false);
 		selectedExercises.remove(exercise);
 	};
-	const handleSwapExerciseEvent = (event: { detail: { indexOld: number; indexNew: number } }) => {
-		const indexOld: number = event.detail.indexOld;
-		const indexNew: number = event.detail.indexNew;
+	const handleSwapExerciseEvent = (event: { detail: { idOld: string; idNew: string } }) => {
+		const idOld: string = event.detail.idOld;
+		const idNew: string = event.detail.idNew;
+		const indexOld = $selectedExercises.findIndex((e: Exercise) => e.id === idOld);
+		const indexNew = $selectedExercises.findIndex((e: Exercise) => e.id === idNew);
 		selectedExercises.swap(indexOld, indexNew);
 	};
 </script>
 
 <div class="mx-auto p-8">
-	<section class="mt-4 grid grid-cols-5 gap-8">
-		<div class="col-start-2 col-span-3">
+	<section class="mt-4 grid grid-cols-3 2xl:grid-cols-5 gap-8">
+		<div class="2xl:col-start-2 col-span-3">
 			<button
 				class="block w-full p-4 bg-rose-500 rounded-md text-zinc-800 text-2xl disabled:bg-stone-400 transition-colors hover:bg-rose-600 hover:text-zinc-900"
 				disabled={selectedExercisesAmount === 0}
@@ -58,7 +60,7 @@
 				{/if}
 			</button>
 		</div>
-		<div class="col-span-1 col-start-2 row-start-2">
+		<div class="col-span-1 2xl:col-start-2 row-start-2">
 			<div class="block w-full p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center">
 				<span class="block mb-2 text-2xl">Total Workout Time</span>
 				<FormattedTime timeInMs={workoutLength} />

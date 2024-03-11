@@ -46,9 +46,10 @@
 			});
 		},
 		swap: (indexOld: number, indexNew: number): void => {
-			selectedWritable.update(($selectedExercises): Exercise[] =>
-				$selectedExercises.toSpliced(indexNew, 0, $selectedExercises.toSpliced(indexOld, 1)[0])
-			);
+			selectedWritable.update(($selectedExercises): Exercise[] => {
+				$selectedExercises.splice(indexNew, 0, $selectedExercises.splice(indexOld, 1)[0]);
+				return $selectedExercises;
+			});
 		}
 	};
 
