@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { Circle, CheckCircle, Shuffle } from 'lucide-svelte';
+	import { Circle, CheckCircle, Shuffle, Square, CheckSquare2 } from 'lucide-svelte';
 	import type { Exercise, ExerciseStore, SelectedExerciseStore } from '$lib/types/customTypes';
 	import type { Writable } from 'svelte/store';
 	import ExerciseList from '../components/ExerciseList.svelte';
@@ -15,7 +15,21 @@
 	const repetitions: Writable<number> = getContext('repetitions');
 	const setOrCycle: Writable<string> = getContext('setOrCycle');
 	let randomCount = 10;
+	const allExerciseCategories = $exercises.reduce((categories: string[], exercise: Exercise) => {
+		let exerciseCategories = exercise.categories;
+		exerciseCategories.forEach((category: string) => {
+			if (!categories.includes(category)) {
+				categories.push(category);
+			}
+		});
+		return categories;
+	}, []);
+	let categoriesForRandom = allExerciseCategories;
 
+	$: filteredExercises = $exercises.filter((exercise: Exercise) =>
+		exercise.categories.some((category: string) => categoriesForRandom.includes(category))
+	);
+	$: if (filteredExercises.length < randomCount) randomCount = filteredExercises.length;
 	$: selectedExercisesAmount = $selectedExercises.length;
 	$: workoutLength = ($exerciseLength + $restLength) * selectedExercisesAmount * $repetitions;
 
@@ -48,13 +62,13 @@
 	const handleRandomizeExercises = () => {
 		exercises.deselectAll();
 		selectedExercises.removeAll();
-		const arr = [];
-		while (arr.length < randomCount) {
-			var r = Math.floor(Math.random() * $exercises.length);
-			if (arr.indexOf(r) === -1) arr.push(r);
+		const randomIndexes = [];
+		while (randomIndexes.length < randomCount) {
+			var r = Math.floor(Math.random() * filteredExercises.length);
+			if (randomIndexes.indexOf(r) === -1) randomIndexes.push(r);
 		}
-		arr.forEach((exerciseIndex: number) => {
-			const exercise: Exercise = $exercises[exerciseIndex];
+		randomIndexes.forEach((exerciseIndex: number) => {
+			const exercise: Exercise = filteredExercises[exerciseIndex];
 			exercises.select(exercise, true);
 			selectedExercises.add(exercise);
 		});
@@ -169,14 +183,42 @@
 								type="range"
 								step="1"
 								min="1"
-								max={$exercises.length}
+								max={filteredExercises.length}
 								bind:value={randomCount}
 							/>
 						</span>
 					</label>
+					<div class="mt-4 flex flex-row gap-3 flex-wrap">
+						{#each allExerciseCategories as category (category)}
+							<label
+								for={category}
+								class="flex flex-row justify-stretch items-stretch rounded-md bg-zinc-900"
+							>
+								<input
+									class="hidden peer"
+									type="checkbox"
+									id={category}
+									name={category}
+									bind:group={categoriesForRandom}
+									value={category}
+								/>
+								<span class="p-2 flex-grow text-xl text-rose-500 text-center">{category}</span>
+								<span
+									class="p-2 flex-none flex justify-center items-center rounded-r-md bg-stone-400 peer-checked:bg-rose-500 text-zinc-800"
+								>
+									{#if categoriesForRandom.includes(category)}
+										<CheckSquare2 />
+									{:else}
+										<Square />
+									{/if}
+								</span>
+							</label>
+						{/each}
+					</div>
 					<button
-						class="w-full mt-4 px-4 py-2 flex flex-row gap-4 justify-center items-center bg-rose-500 rounded-md text-2xl text-zinc-900 hover:bg-rose-400 hover:text-zinc-800"
+						class="w-full mt-4 px-4 py-2 flex flex-row gap-4 justify-center items-center bg-rose-500 rounded-md text-2xl text-zinc-900 hover:bg-rose-400 hover:text-zinc-800 disabled:bg-stone-400"
 						on:click={handleRandomizeExercises}
+						disabled={randomCount === 0}
 					>
 						<span class="flex-none flex flex-row justify-center items-center"><Shuffle /></span>
 						<span class="">Randomize {randomCount} Exercises</span>
