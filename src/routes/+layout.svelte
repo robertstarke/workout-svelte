@@ -21,6 +21,11 @@
 				$exercises[changeIndex].selected = selected;
 				return $exercises;
 			});
+		},
+		deselectAll: () => {
+			exerciseWritable.update(($exercises) =>
+				$exercises.map((e: Exercise) => ({ ...e, selected: false }))
+			);
 		}
 	};
 
@@ -44,6 +49,9 @@
 				}
 				return $selectedExercises;
 			});
+		},
+		removeAll: (): void => {
+			selectedWritable.update((): Exercise[] => []);
 		},
 		swap: (indexOld: number, indexNew: number): void => {
 			selectedWritable.update(($selectedExercises): Exercise[] => {

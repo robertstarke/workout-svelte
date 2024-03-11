@@ -8,11 +8,24 @@
 	import { X, Pause, Play } from 'lucide-svelte';
 
 	// Stores
-	const exercises: ExerciseStore = getContext('exercises');
+	const selectedExercises: ExerciseStore = getContext('selectedExercises');
 	const exerciseLength: Writable<number> = getContext('exerciseLength');
 	const restLength: Writable<number> = getContext('restLength');
 	const repetitions: Writable<number> = getContext('repetitions');
 	const setOrCycle: Writable<string> = getContext('setOrCycle');
+
+	let workoutExercises = $selectedExercises;
+
+	if ($repetitions > 1) {
+		const helperArray = Array($repetitions).fill('');
+		if ($setOrCycle === 'set') {
+			workoutExercises = workoutExercises.flatMap((exercise: Exercise) =>
+				helperArray.map(() => exercise)
+			);
+		} else if ($setOrCycle === 'cycle') {
+			workoutExercises = helperArray.flatMap(() => [...workoutExercises]);
+		}
+	}
 
 	const size = 128;
 	const trackWidth = 6;
@@ -20,10 +33,8 @@
 	let intervalLength: number = $restLength;
 	let paused: boolean = false;
 	let phase: string = 'rest';
-	const selectedExercises: Exercise[] = $exercises.filter((e: Exercise) => e.selected);
-	let workoutExercises: Exercise[] = selectedExercises;
-	const fullTime: number =
-		($exerciseLength + $restLength) * selectedExercises.length * $repetitions;
+	let activeExerciseIndex: number = 0;
+	const fullTime: number = ($exerciseLength + $restLength) * workoutExercises.length;
 	let remainingTime: number = fullTime;
 
 	const center = size / 2;
@@ -64,9 +75,19 @@
 		}
 		if (intervalLength <= 0) {
 			clearInterval(interval);
-			phase = phase === 'rest' ? 'exercise' : 'rest';
-			intervalLength = phase === 'rest' ? $restLength : $exerciseLength;
-			interval = setInterval(intervalCallback, 100);
+			if (activeExerciseIndex < workoutExercises.length) {
+				if (phase === 'rest') {
+					phase = 'exercise';
+					intervalLength = $exerciseLength;
+				} else {
+					phase = 'rest';
+					intervalLength = $restLength;
+					activeExerciseIndex++;
+				}
+				interval = setInterval(intervalCallback, 100);
+			} else {
+				return;
+			}
 		}
 		intervalLength = intervalLength - 100;
 		remainingTime = remainingTime - 100;
@@ -90,27 +111,22 @@
 		}
 	}
 
-	if (browser && selectedExercises.length === 0) {
+	if (browser && workoutExercises.length === 0) {
 		goto('/');
 	}
 
-	if ($repetitions > 1) {
-		const helperArray = Array($repetitions).fill('');
-		if ($setOrCycle === 'set') {
-			workoutExercises = selectedExercises.flatMap((exercise: Exercise) =>
-				helperArray.map(() => exercise)
-			);
-		} else if ($setOrCycle === 'cycle') {
-			workoutExercises = helperArray.flatMap(() => [...selectedExercises]);
-		}
-	}
-
-	let roundIndex = 0;
-	let activeExercise = workoutExercises[0];
+	$: activeExercise = workoutExercises[activeExerciseIndex];
 
 	$: normalizedTime = ((remainingTime - 1000) / fullTime) * 100;
 
-	const pauseHandler = () => {};
+	const pauseHandler = () => {
+		if (paused) {
+			interval = setInterval(intervalCallback, 100);
+		} else {
+			clearInterval(interval);
+		}
+		paused = !paused;
+	};
 </script>
 
 <div class="w-lvh">
@@ -168,7 +184,9 @@
 					cy={center}
 					r={radius}
 					fill="none"
-					class="stroke-current text-rose-500 fill-transparent"
+					class="stroke-current fill-transparent"
+					class:text-rose-500={phase === 'rest'}
+					class:text-lime-500={phase === 'exercise'}
 					stroke-width={indicatorWidth}
 					stroke-linecap="round"
 					stroke-dasharray={dashArray}
@@ -179,11 +197,18 @@
 				class="absolute flex justify-center items-center aspect-square h-4/5 top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2 rounded-full"
 			>
 				<div
-					class="z-20 flex justify-center items-center aspect-square h-full rounded-full bg-rose-300 overflow-hidden"
+					class="z-20 flex justify-center items-center aspect-square h-full rounded-full overflow-hidden"
+					class:bg-rose-300={phase === 'rest'}
+					class:bg-lime-300={phase === 'exercise'}
 				>
 					<div class="text-3xl text-center">
 						{#if remainingTime > 0}
-							<div class="mb-6">{activeExercise.name}</div>
+							{#if phase === 'rest'}
+								<div class="mb-2">Rest</div>
+								<div class="mb-6 text-2xl">Next: {activeExercise.name}</div>
+							{:else}
+								<div class="mb-6">{activeExercise.name}</div>
+							{/if}
 							<div><FormattedTime timeInMs={intervalLength} /></div>
 						{:else}
 							Congratulations you finished the excercise
@@ -191,8 +216,10 @@
 					</div>
 				</div>
 				<div
+					class="z-10 absolute aspect-square h-full rounded-full"
 					class:wa-animate-ping={intervalLength < 4000}
-					class="z-10 absolute aspect-square h-full rounded-full bg-rose-500"
+					class:bg-rose-500={phase === 'rest'}
+					class:bg-lime-500={phase === 'exercise'}
 				></div>
 			</div>
 		</div>

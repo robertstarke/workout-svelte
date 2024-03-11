@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { Circle, CheckCircle } from 'lucide-svelte';
+	import { Circle, CheckCircle, Shuffle } from 'lucide-svelte';
 	import type { Exercise, ExerciseStore, SelectedExerciseStore } from '$lib/types/customTypes';
 	import type { Writable } from 'svelte/store';
 	import ExerciseList from '../components/ExerciseList.svelte';
@@ -14,6 +14,7 @@
 	const restLength: Writable<number> = getContext('restLength');
 	const repetitions: Writable<number> = getContext('repetitions');
 	const setOrCycle: Writable<string> = getContext('setOrCycle');
+	let randomCount = 10;
 
 	$: selectedExercisesAmount = $selectedExercises.length;
 	$: workoutLength = ($exerciseLength + $restLength) * selectedExercisesAmount * $repetitions;
@@ -44,9 +45,23 @@
 		const indexNew = $selectedExercises.findIndex((e: Exercise) => e.id === idNew);
 		selectedExercises.swap(indexOld, indexNew);
 	};
+	const handleRandomizeExercises = () => {
+		exercises.deselectAll();
+		selectedExercises.removeAll();
+		const arr = [];
+		while (arr.length < randomCount) {
+			var r = Math.floor(Math.random() * $exercises.length);
+			if (arr.indexOf(r) === -1) arr.push(r);
+		}
+		arr.forEach((exerciseIndex: number) => {
+			const exercise: Exercise = $exercises[exerciseIndex];
+			exercises.select(exercise, true);
+			selectedExercises.add(exercise);
+		});
+	};
 </script>
 
-<div class="mx-auto p-8">
+<div class="mx-auto px-8">
 	<section class="mt-4 grid grid-cols-3 2xl:grid-cols-5 gap-8">
 		<div class="2xl:col-start-2 col-span-3">
 			<button
@@ -70,7 +85,7 @@
 					<span class="w-28 p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center"
 						>{$exerciseLength / 1000}s</span
 					>
-					<span class="flex flex-col">
+					<span class="flex-grow flex flex-col">
 						<span class="text-xl">Exercise Length</span>
 						<input
 							id="exerciseLength"
@@ -86,7 +101,7 @@
 					<span class="w-28 p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center"
 						>{$restLength / 1000}s</span
 					>
-					<span class="flex flex-col">
+					<span class="flex-grow flex flex-col">
 						<span class="text-xl">Rest Length</span>
 						<input
 							id="restLength"
@@ -102,7 +117,7 @@
 					<span class="w-28 p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center"
 						>{$repetitions}</span
 					>
-					<span class="flex flex-col">
+					<span class="flex-grow flex flex-col">
 						<span class="text-xl">Repetitions</span>
 						<input
 							id="repetitions"
@@ -145,6 +160,28 @@
 						</div>
 					</div>
 				{/if}
+				<div class="mt-4">
+					<label for="randomizer" class="flex flex-row items-center gap-4">
+						<span class="w-full flex flex-col">
+							<span class="text-xl">Amount of exercises</span>
+							<input
+								id="randomizer"
+								type="range"
+								step="1"
+								min="1"
+								max={$exercises.length}
+								bind:value={randomCount}
+							/>
+						</span>
+					</label>
+					<button
+						class="w-full mt-4 px-4 py-2 flex flex-row gap-4 justify-center items-center bg-rose-500 rounded-md text-2xl text-zinc-900 hover:bg-rose-400 hover:text-zinc-800"
+						on:click={handleRandomizeExercises}
+					>
+						<span class="flex-none flex flex-row justify-center items-center"><Shuffle /></span>
+						<span class="">Randomize {randomCount} Exercises</span>
+					</button>
+				</div>
 			</div>
 		</div>
 		<div class="grid grid-cols-subgrid col-span-2 justify-center gap-8">
