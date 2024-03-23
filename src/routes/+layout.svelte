@@ -63,20 +63,12 @@
 		}
 	};
 
-	const categoryColorMap: Map<string, string> = new Map<string, string>([
-		['core', '#dc2626'],
-		['arms', '#ca8a04'],
-		['legs', '#65a30d'],
-		['cardio', '#2563eb']
-	]);
-
 	setContext('exercises', exercises);
 	setContext('selectedExercises', selectedExercises);
 	setContext('exerciseLength', writable(45000));
 	setContext('restLength', writable(15000));
 	setContext('repetitions', writable(1));
 	setContext('setOrCycle', writable('cycle'));
-	setContext('categoryColorMap', categoryColorMap);
 </script>
 
 <slot />
