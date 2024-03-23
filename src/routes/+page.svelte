@@ -2,11 +2,16 @@
 	import { getContext } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { Circle, CheckCircle, Shuffle, Square, CheckSquare2 } from 'lucide-svelte';
-	import type { Exercise, ExerciseStore, SelectedExerciseStore } from '$lib/types/customTypes';
+	import {
+		type Exercise,
+		type ExerciseStore,
+		type SelectedExerciseStore
+	} from '$lib/types/customTypes';
 	import type { Writable } from 'svelte/store';
 	import ExerciseList from '../components/ExerciseList.svelte';
 	import DraggableExerciseList from '../components/DraggableExerciseList.svelte';
 	import FormattedTime from '../components/FormattedTime.svelte';
+	import CategoryColorIndicator from '../components/CategoryColorIndicator.svelte';
 
 	const exercises: ExerciseStore = getContext('exercises');
 	const selectedExercises: SelectedExerciseStore = getContext('selectedExercises');
@@ -202,7 +207,10 @@
 									bind:group={categoriesForRandom}
 									value={category}
 								/>
-								<span class="p-2 flex-grow text-xl text-rose-500 text-center">{category}</span>
+								<span class="w-full flex flex-col">
+									<CategoryColorIndicator categories={[category]} />
+									<span class="p-2 flex-grow text-xl text-rose-500 text-center">{category}</span>
+								</span>
 								<span
 									class="p-2 flex-none flex justify-center items-center rounded-r-md bg-stone-400 peer-checked:bg-rose-500 text-zinc-800"
 								>

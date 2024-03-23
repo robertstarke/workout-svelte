@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { flip } from 'svelte/animate';
-	import { send, receive } from '../animation/exerciseTransition';
-	import { Square, CheckSquare } from 'lucide-svelte';
 	import type { Exercise } from '$lib/types/customTypes';
+	import { CheckSquare, Square } from 'lucide-svelte';
+	import CategoryColorIndicator from './CategoryColorIndicator.svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	export let exercises: Exercise[];
@@ -14,7 +13,7 @@
 </script>
 
 <ul class="space-y-4">
-	{#each exercises as exercise}
+	{#each exercises as exercise (exercise.id)}
 		<li>
 			<label
 				for={exercise.id}
@@ -28,9 +27,12 @@
 					name="exercises"
 					on:change={(e) => selectExercise(exercise, e.currentTarget.checked)}
 				/>
-				<span class="px-4 py-2">
-					<span class="block text-xl text-rose-500">{exercise.name}</span>
-					<span class="block text-sm text-stone-50">{exercise.description}</span>
+				<span class="w-full flex flex-col justify-stretch items-stretch">
+					<CategoryColorIndicator categories={exercise.categories} />
+					<span class="w-full px-4 py-2 text-stone-50">
+						<span class="block text-xl text-rose-500">{exercise.name}</span>
+						<span class="block text-sm">{exercise.description}</span>
+					</span>
 				</span>
 				<span
 					class="flex-none flex items-center justify-center w-16 rounded-r-md bg-stone-400 text-zinc-800 peer-checked:bg-rose-500"

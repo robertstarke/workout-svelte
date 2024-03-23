@@ -2,6 +2,7 @@
 	import { GripHorizontal, Trash2 } from 'lucide-svelte';
 	import type { Exercise } from '$lib/types/customTypes';
 	import { createEventDispatcher } from 'svelte';
+	import CategoryColorIndicator from './CategoryColorIndicator.svelte';
 
 	export let exercises: Exercise[];
 
@@ -57,12 +58,19 @@
 			<div
 				class="w-full h-full flex flex-row justify-stretch items-stretch bg-zinc-900 rounded-md cursor-pointer"
 			>
-				<span class="px-4 py-2 flex-none flex justify-center items-center text-stone-50 text-4xl"
-					><GripHorizontal /></span
-				>
-				<span class="flex-grow block px-4 py-2">
-					<span class="block text-xl text-rose-500">{exercise.name}</span>
-					<span class="block text-sm text-stone-50">{exercise.description}</span>
+				<span class="flex flex-col w-full">
+					<CategoryColorIndicator categories={exercise.categories} />
+
+					<span class="flex flex-row">
+						<span
+							class="px-4 py-2 flex-none flex justify-center items-center text-stone-50 text-4xl"
+							><GripHorizontal /></span
+						>
+						<span class="flex-grow block px-4 py-2">
+							<span class="block text-xl text-rose-500">{exercise.name}</span>
+							<span class="block text-sm text-stone-50">{exercise.description}</span>
+						</span>
+					</span>
 				</span>
 				<button
 					class="flex-none flex items-center justify-center w-16 rounded-r-md text-zinc-800 bg-rose-500"
