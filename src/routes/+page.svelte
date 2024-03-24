@@ -90,7 +90,7 @@
 				{#if selectedExercisesAmount === 0}
 					Select Exercises To Start
 				{:else}
-					<a href="/workout">Start Workout</a>
+					<a href="./workout">Start Workout</a>
 				{/if}
 			</button>
 		</div>
@@ -194,7 +194,7 @@
 						</span>
 					</label>
 					<div class="mt-4 flex flex-row gap-3 flex-wrap">
-						{#each allExerciseCategories as category (category)}
+						{#each allExerciseCategories as category}
 							<label
 								for={category}
 								class="flex flex-row justify-stretch items-stretch rounded-md bg-zinc-900"
@@ -236,7 +236,7 @@
 		</div>
 		<div class="grid grid-cols-subgrid col-span-2 justify-center gap-8">
 			<div>
-				<h2 class="mb-4 text-2xl text-zinc-800">Available Exercises</h2>
+				<h2 class="mb-4 text-2xl text-zinc-800">All Exercises</h2>
 				<ExerciseList exercises={$exercises} on:selectExercise={handleSelectExerciseEvent} />
 			</div>
 

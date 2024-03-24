@@ -112,7 +112,7 @@
 	}
 
 	if (browser && workoutExercises.length === 0) {
-		goto('/');
+		goto('./');
 	}
 
 	$: activeExercise = workoutExercises[activeExerciseIndex];
@@ -137,7 +137,7 @@
 		></div>
 	</div>
 	<div class="h-32 flex flex-row justify-between items-center p-8">
-		<a href="/" title="Back to setup" class="flex-none">
+		<a href="./" title="Back to setup" class="flex-none">
 			<button
 				class="aspect-square h-20 flex justify-center items-center p-4 bg-rose-500 rounded-md text-zinc-800 text-3xl hover:bg-rose-600 hover:text-zinc-900"
 				><X size="40" /></button

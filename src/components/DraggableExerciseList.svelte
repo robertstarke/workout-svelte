@@ -45,7 +45,7 @@
 </script>
 
 <ul class="space-y-4">
-	{#each exercises as exercise}
+	{#each exercises as exercise (exercise.id)}
 		<li
 			draggable="true"
 			on:dragstart={(e) => handleDragStart(e, exercise.id)}
