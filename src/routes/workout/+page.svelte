@@ -51,12 +51,12 @@
 	const beep = (isLastBeep: boolean) => {
 		if (browser) {
 			const audioContext = new AudioContext();
-			const beep = audioContext.createOscillator();
-			beep.frequency.value = isLastBeep ? 540 : 1240;
+			const beeper = audioContext.createOscillator();
+			beeper.frequency.value = isLastBeep ? 540 : 1240;
 			const duration = isLastBeep ? 0.75 : 0.2;
-			beep.connect(audioContext.destination);
-			beep.start();
-			beep.stop(audioContext.currentTime + duration);
+			beeper.connect(audioContext.destination);
+			beeper.start();
+			beeper.stop(audioContext.currentTime + duration);
 		}
 	};
 
@@ -75,19 +75,18 @@
 		}
 		if (intervalLength <= 0) {
 			clearInterval(interval);
-			if (activeExerciseIndex < workoutExercises.length) {
-				if (phase === 'rest') {
-					phase = 'exercise';
-					intervalLength = $exerciseLength;
-				} else {
-					phase = 'rest';
-					intervalLength = $restLength;
-					activeExerciseIndex++;
-				}
-				interval = setInterval(intervalCallback, 100);
-			} else {
+			if (phase === 'exercise' && activeExerciseIndex === workoutExercises.length - 1) {
 				return;
 			}
+			if (phase === 'rest') {
+				phase = 'exercise';
+				intervalLength = $exerciseLength;
+			} else {
+				phase = 'rest';
+				intervalLength = $restLength;
+				activeExerciseIndex++;
+			}
+			interval = setInterval(intervalCallback, 100);
 		}
 		intervalLength = intervalLength - 100;
 		remainingTime = remainingTime - 100;
@@ -119,7 +118,12 @@
 
 	$: normalizedTime = ((remainingTime - 1000) / fullTime) * 100;
 
-	const pauseHandler = () => {
+	const handleBackButton = () => {
+		clearInterval(interval);
+		goto('./');
+	};
+
+	const handlePauseButton = () => {
 		if (paused) {
 			interval = setInterval(intervalCallback, 100);
 		} else {
@@ -139,16 +143,18 @@
 	<div class="h-32 flex flex-row justify-between items-center p-8">
 		<a href="./" title="Back to setup" class="flex-none">
 			<button
-				class="aspect-square h-20 flex justify-center items-center p-4 bg-rose-500 rounded-md text-zinc-800 text-3xl hover:bg-rose-600 hover:text-zinc-900"
-				><X size="40" /></button
+				class="flex-none aspect-square h-20 flex justify-center items-center p-4 bg-rose-500 rounded-md text-zinc-800 text-3xl hover:bg-rose-600 hover:text-zinc-900"
+				on:click={handleBackButton}
 			>
+				<X size="40" />
+			</button>
 		</a>
 		<div class="w-full text-3xl text-center">
 			<FormattedTime timeInMs={remainingTime} />
 		</div>
 		<div class="flex-none">
 			<button
-				on:click={pauseHandler}
+				on:click={handlePauseButton}
 				disabled={remainingTime < 0}
 				class="aspect-square h-20 flex justify-center items-center p-4 bg-rose-500 rounded-md text-zinc-800 hover:bg-rose-600 hover:text-zinc-900 disabled:bg-stone-400 disabled:hover:text-zinc-800"
 			>
@@ -217,7 +223,7 @@
 				</div>
 				<div
 					class="z-10 absolute aspect-square h-full rounded-full"
-					class:wa-animate-ping={intervalLength < 4000}
+					class:wa-animate-ping={intervalLength <= 3000}
 					class:bg-rose-500={phase === 'rest'}
 					class:bg-lime-500={phase === 'exercise'}
 				></div>
