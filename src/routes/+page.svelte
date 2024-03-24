@@ -81,7 +81,7 @@
 </script>
 
 <div class="mx-auto px-8">
-	<section class="mt-4 grid grid-cols-3 2xl:grid-cols-5 gap-8">
+	<section class="my-4 grid grid-cols-3 2xl:grid-cols-5 gap-8">
 		<div class="2xl:col-start-2 col-span-3">
 			<button
 				class="block w-full p-4 bg-rose-500 rounded-md text-zinc-800 text-2xl disabled:bg-stone-400 transition-colors hover:bg-rose-600 hover:text-zinc-900"
