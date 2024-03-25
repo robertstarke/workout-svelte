@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { Circle, CheckCircle, Shuffle, Square, CheckSquare2 } from 'lucide-svelte';
+	import { Circle, CheckCircle, Shuffle, Square, CheckSquare } from 'lucide-svelte';
 	import {
 		type Exercise,
 		type ExerciseStore,
@@ -80,9 +80,11 @@
 	};
 </script>
 
-<div class="mx-auto px-8">
-	<section class="my-4 grid grid-cols-3 2xl:grid-cols-5 gap-8">
-		<div class="2xl:col-start-2 col-span-3">
+<div class="mx-auto">
+	<section
+		class="h-auto md:h-lvh px-8 grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8 overflow-auto md:overflow-hidden"
+	>
+		<div class="pt-8 overflow-auto md:overflow-scroll">
 			<button
 				class="block w-full p-4 bg-rose-500 rounded-md text-zinc-800 text-2xl disabled:bg-stone-400 transition-colors hover:bg-rose-600 hover:text-zinc-900"
 				disabled={selectedExercisesAmount === 0}
@@ -93,21 +95,21 @@
 					<a href="./workout">Start Workout</a>
 				{/if}
 			</button>
-		</div>
-		<div class="col-span-1 2xl:col-start-2 row-start-2">
-			<div class="block w-full p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center">
+			<div class="mt-4 block w-full p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center">
 				<span class="block mb-2 text-2xl">Total Workout Time</span>
 				<FormattedTime timeInMs={workoutLength} />
 			</div>
 			<div class="mt-4 flex flex-col gap-4">
 				<label for="exerciseLength" class="flex flex-row items-center gap-4">
-					<span class="w-28 p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center"
+					<span
+						class="flex-none w-24 px-3 py-2 bg-zinc-900 rounded-md text-3xl text-rose-500 text-center"
 						>{$exerciseLength / 1000}s</span
 					>
-					<span class="flex-grow flex flex-col">
+					<span class="flex-auto flex flex-col">
 						<span class="text-xl">Exercise Length</span>
 						<input
 							id="exerciseLength"
+							class="w-full"
 							type="range"
 							step="5000"
 							min="10000"
@@ -117,13 +119,15 @@
 					</span>
 				</label>
 				<label for="restLength" class="flex flex-row items-center gap-4">
-					<span class="w-28 p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center"
+					<span
+						class="flex-none w-24 px-3 py-2 bg-zinc-900 rounded-md text-3xl text-rose-500 text-center"
 						>{$restLength / 1000}s</span
 					>
-					<span class="flex-grow flex flex-col">
+					<span class="flex-auto flex flex-col">
 						<span class="text-xl">Rest Length</span>
 						<input
 							id="restLength"
+							class="w-full"
 							type="range"
 							step="5000"
 							min="5000"
@@ -133,13 +137,15 @@
 					</span>
 				</label>
 				<label for="repetitions" class="flex flex-row items-center gap-4">
-					<span class="w-28 p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center"
+					<span
+						class="flex-none w-24 px-3 py-2 bg-zinc-900 rounded-md text-3xl text-rose-500 text-center"
 						>{$repetitions}</span
 					>
-					<span class="flex-grow flex flex-col">
+					<span class="flex-auto flex flex-col">
 						<span class="text-xl">Repetitions</span>
 						<input
 							id="repetitions"
+							class="w-full"
 							type="range"
 							step="1"
 							min="1"
@@ -179,25 +185,13 @@
 						</div>
 					</div>
 				{/if}
-				<div class="mt-4">
-					<label for="randomizer" class="flex flex-row items-center gap-4">
-						<span class="w-full flex flex-col">
-							<span class="text-xl">Amount of exercises</span>
-							<input
-								id="randomizer"
-								type="range"
-								step="1"
-								min="1"
-								max={filteredExercises.length}
-								bind:value={randomCount}
-							/>
-						</span>
-					</label>
+				<div class="mt-8">
+					<h2 class="text-2xl">Randomize exercises</h2>
 					<div class="mt-4 flex flex-row gap-3 flex-wrap">
 						{#each allExerciseCategories as category}
 							<label
 								for={category}
-								class="flex flex-row justify-stretch items-stretch rounded-md bg-zinc-900"
+								class="pr-3 flex flex-row justify-stretch items-stretch gap-3 rounded-md bg-zinc-900 cursor-pointer"
 							>
 								<input
 									class="hidden peer"
@@ -207,15 +201,13 @@
 									bind:group={categoriesForRandom}
 									value={category}
 								/>
-								<span class="w-full flex flex-col">
-									<CategoryColorIndicator categories={[category]} />
-									<span class="p-2 flex-grow text-xl text-rose-500 text-center">{category}</span>
-								</span>
+								<CategoryColorIndicator categories={[category]} />
+								<span class="py-2 flex-grow text-xl text-rose-500 text-center">{category}</span>
 								<span
-									class="p-2 flex-none flex justify-center items-center rounded-r-md bg-stone-400 peer-checked:bg-rose-500 text-zinc-800"
+									class="py-2 flex-none flex justify-center items-center rounded-r-md peer-checked:text-lime-600 text-rose-500"
 								>
 									{#if categoriesForRandom.includes(category)}
-										<CheckSquare2 />
+										<CheckSquare />
 									{:else}
 										<Square />
 									{/if}
@@ -223,6 +215,20 @@
 							</label>
 						{/each}
 					</div>
+					<label for="randomizer" class="mt-4 flex flex-row items-center gap-4">
+						<span class="w-full flex flex-col">
+							<span class="text-xl">Amount of exercises</span>
+							<input
+								id="randomizer"
+								class="w-full"
+								type="range"
+								step="1"
+								min="1"
+								max={filteredExercises.length}
+								bind:value={randomCount}
+							/>
+						</span>
+					</label>
 					<button
 						class="w-full mt-4 px-4 py-2 flex flex-row gap-4 justify-center items-center bg-rose-500 rounded-md text-2xl text-zinc-900 hover:bg-rose-400 hover:text-zinc-800 disabled:bg-stone-400"
 						on:click={handleRandomizeExercises}
@@ -234,14 +240,19 @@
 				</div>
 			</div>
 		</div>
-		<div class="grid grid-cols-subgrid col-span-2 justify-center gap-8">
-			<div>
-				<h2 class="mb-4 text-2xl text-zinc-800">All Exercises</h2>
+		<div
+			class="relative pb-8 col-span-1 xl:col-span-2 2xl:col-span-3 overflow-auto md:overflow-scroll"
+		>
+			<h2 class="block md:fixed w-full pt-8 pb-4 bg-white text-2xl text-zinc-800">All Exercises</h2>
+			<div class="pt-0 md:pt-20">
 				<ExerciseList exercises={$exercises} on:selectExercise={handleSelectExerciseEvent} />
 			</div>
-
-			<div>
-				<h2 class="mb-4 text-2xl text-zinc-800">Selected Exercises</h2>
+		</div>
+		<div class="relative pb-8 overflow-auto md:overflow-scroll">
+			<h2 class="block md:fixed w-full pt-8 pb-4 bg-white text-2xl text-zinc-800">
+				Selected Exercises
+			</h2>
+			<div class="pt-0 md:pt-20">
 				<DraggableExerciseList
 					exercises={$selectedExercises}
 					on:removeExercise={handleRemoveExerciseEvent}

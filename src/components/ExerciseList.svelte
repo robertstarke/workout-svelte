@@ -12,12 +12,15 @@
 	};
 </script>
 
-<ul class="space-y-4">
+<ul
+	class="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4"
+	style="grid-template-rows: masonry;"
+>
 	{#each exercises as exercise (exercise.id)}
 		<li>
 			<label
 				for={exercise.id}
-				class="w-full h-full flex flex-row justify-between items-stretch bg-zinc-900 rounded-md cursor-pointer"
+				class="pr-4 w-full flex flex-row gap-4 justify-stretch items-stretch bg-zinc-900 rounded-md cursor-pointer"
 			>
 				<input
 					type="checkbox"
@@ -27,15 +30,13 @@
 					name="exercises"
 					on:change={(e) => selectExercise(exercise, e.currentTarget.checked)}
 				/>
-				<span class="w-full flex flex-col justify-stretch items-stretch">
-					<CategoryColorIndicator categories={exercise.categories} />
-					<span class="w-full px-4 py-2 text-stone-50">
-						<span class="block text-xl text-rose-500">{exercise.name}</span>
-						<span class="block text-sm">{exercise.description}</span>
-					</span>
+				<CategoryColorIndicator categories={exercise.categories} />
+				<span class="flex-grow py-2 text-stone-50">
+					<span class="block text-xl text-rose-500">{exercise.name}</span>
+					<span class="block text-sm">{exercise.description}</span>
 				</span>
 				<span
-					class="flex-none flex items-center justify-center w-16 rounded-r-md bg-stone-400 text-zinc-800 peer-checked:bg-rose-500"
+					class="flex-none flex items-center justify-center rounded-r-md text-rose-500 peer-checked:text-lime-600"
 				>
 					<span class="text-4xl">
 						{#if exercise.selected}

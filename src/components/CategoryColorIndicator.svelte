@@ -26,9 +26,8 @@
 			}
 			return colorString;
 		}, '');
-		style = `background: linear-gradient(to right, ${colors})`;
+		style = `background: linear-gradient(to bottom, ${colors})`;
 	}
 </script>
 
-<span class="block flex-none w-full h-2 rounded-tl-md" {style}></span>
-
+<span class="block flex-none w-2 rounded-l-md" {style}></span>

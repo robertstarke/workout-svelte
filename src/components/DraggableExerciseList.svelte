@@ -44,7 +44,7 @@
 	};
 </script>
 
-<ul class="space-y-4">
+<ul class="grid grid-cols-1 gap-4">
 	{#each exercises as exercise (exercise.id)}
 		<li
 			draggable="true"
@@ -56,24 +56,19 @@
 			on:dragover|preventDefault={handleDragOver}
 		>
 			<div
-				class="w-full h-full flex flex-row justify-stretch items-stretch bg-zinc-900 rounded-md cursor-pointer"
+				class="pr-4 w-full flex flex-row gap-4 justify-stretch items-stretch bg-zinc-900 rounded-md cursor-pointer"
 			>
-				<span class="flex flex-col w-full">
-					<CategoryColorIndicator categories={exercise.categories} />
+				<CategoryColorIndicator categories={exercise.categories} />
 
-					<span class="flex flex-row">
-						<span
-							class="px-4 py-2 flex-none flex justify-center items-center text-stone-50 text-4xl"
-							><GripHorizontal /></span
-						>
-						<span class="flex-grow block px-4 py-2">
-							<span class="block text-xl text-rose-500">{exercise.name}</span>
-							<span class="block text-sm text-stone-50">{exercise.description}</span>
-						</span>
-					</span>
+				<span class="py-2 flex-none flex justify-center items-center text-stone-50 text-4xl"
+					><GripHorizontal /></span
+				>
+				<span class="flex-grow block py-2">
+					<span class="block text-xl text-rose-500">{exercise.name}</span>
+					<span class="block text-sm text-stone-50">{exercise.description}</span>
 				</span>
 				<button
-					class="flex-none flex items-center justify-center w-16 rounded-r-md text-zinc-800 bg-rose-500"
+					class="flex-none flex items-center justify-center rounded-r-md text-rose-500"
 					on:click={() => removeExercise(exercise)}
 				>
 					<span class="text-4xl">
