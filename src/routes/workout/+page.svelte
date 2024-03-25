@@ -28,7 +28,7 @@
 	}
 
 	const size = 128;
-	const trackWidth = 6;
+	const trackWidth = 3;
 	const indicatorWidth = 3;
 	let intervalLength: number = $restLength;
 	let paused: boolean = false;
@@ -133,8 +133,8 @@
 	};
 </script>
 
-<div class="w-lvh">
-	<div class="progressBar w-full h-6 bg-stone-400">
+<div class="w-lvw bg-zinc-800">
+	<div class="progressBar w-full h-6">
 		<div
 			class="h-full bg-rose-500 transition-all duration-1000 ease-linear"
 			style="width: {normalizedTime}%;"
@@ -149,7 +149,7 @@
 				<X size="40" />
 			</button>
 		</a>
-		<div class="w-full text-3xl text-center">
+		<div class="w-full text-3xl text-rose-500 text-center">
 			<FormattedTime timeInMs={remainingTime} />
 		</div>
 		<div class="flex-none">
@@ -181,7 +181,9 @@
 					cy={center}
 					r={radius}
 					fill="none"
-					class="stroke-current text-stone-400 fill-transparent"
+					class:text-lime-500={phase === 'rest'}
+					class:text-rose-500={phase === 'exercise'}
+					class="stroke-current fill-transparent"
 					stroke-width={trackWidth}
 				></circle>
 				<circle
@@ -198,35 +200,41 @@
 					stroke-dasharray={dashArray}
 					stroke-dashoffset={dashOffset}
 				></circle>
+				<circle
+					id="wa-inner-ping"
+					cx={center}
+					cy={center}
+					r={radius - 8}
+					class="transform origin-center"
+					class:fill-rose-500={phase === 'rest'}
+					class:fill-lime-500={phase === 'exercise'}
+					class:wa-animate-ping={intervalLength <= 3000}
+				></circle>
+				<circle
+					id="wa-inner"
+					cx={center}
+					cy={center}
+					r={radius - 8}
+					class:fill-rose-300={phase === 'rest'}
+					class:fill-lime-300={phase === 'exercise'}
+				></circle>
 			</svg>
 			<div
-				class="absolute flex justify-center items-center aspect-square h-4/5 top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2 rounded-full"
+				class="z-40 absolute flex justify-center items-center aspect-square top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2 rounded-full"
 			>
-				<div
-					class="z-20 flex justify-center items-center aspect-square h-full rounded-full overflow-hidden"
-					class:bg-rose-300={phase === 'rest'}
-					class:bg-lime-300={phase === 'exercise'}
-				>
-					<div class="text-3xl text-center">
-						{#if remainingTime > 0}
-							{#if phase === 'rest'}
-								<div class="mb-2">Rest</div>
-								<div class="mb-6 text-2xl">Next: {activeExercise.name}</div>
-							{:else}
-								<div class="mb-6">{activeExercise.name}</div>
-							{/if}
-							<div><FormattedTime timeInMs={intervalLength} /></div>
+				<div class="text-3xl text-center">
+					{#if remainingTime > 0}
+						{#if phase === 'rest'}
+							<div class="mb-2">Rest</div>
+							<div class="mb-6 text-2xl">Next: {activeExercise.name}</div>
 						{:else}
-							Congratulations you finished the excercise
+							<div class="mb-6">{activeExercise.name}</div>
 						{/if}
-					</div>
+						<div><FormattedTime timeInMs={intervalLength} /></div>
+					{:else}
+						Congratulations you finished the excercise
+					{/if}
 				</div>
-				<div
-					class="z-10 absolute aspect-square h-full rounded-full"
-					class:wa-animate-ping={intervalLength <= 3000}
-					class:bg-rose-500={phase === 'rest'}
-					class:bg-lime-500={phase === 'exercise'}
-				></div>
 			</div>
 		</div>
 	</div>
