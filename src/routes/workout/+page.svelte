@@ -133,7 +133,7 @@
 	};
 </script>
 
-<div class="w-lvw bg-zinc-800">
+<div class="min-w-96 w-lvw bg-zinc-800">
 	<div class="progressBar w-full h-6">
 		<div
 			class="h-full bg-rose-500 transition-all duration-1000 ease-linear"
