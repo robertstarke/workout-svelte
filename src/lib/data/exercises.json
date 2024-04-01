@@ -9,7 +9,8 @@
 		"id": "armcircles",
 		"name": "Arm Circles",
 		"description": "Forward or backwards; large or small circles",
-		"categories": ["arms"]
+		"categories": ["arms"],
+		"switchSides": true
 	},
 	{
 		"id": "bearcrawl",
@@ -57,13 +58,15 @@
 		"id": "curtsylunge",
 		"name": "Curtsy Lunge",
 		"description": "While lunging bring one foot behind the other, until back thigh is almost parallel to floor",
-		"categories": ["legs"]
+		"categories": ["legs"],
+		"switchSides": true
 	},
 	{
 		"id": "firehydrants",
 		"name": "Fire Hydrants",
 		"description": "On hands and knees, raise one leg to the side 90 degrees",
-		"categories": ["core"]
+		"categories": ["core"],
+		"switchSides": true
 	},
 	{
 		"id": "flutterkicks",
@@ -75,7 +78,8 @@
 		"id": "forwardlunge",
 		"name": "Forward Lunge",
 		"description": "",
-		"categories": ["legs"]
+		"categories": ["legs"],
+		"switchSides": true
 	},
 	{
 		"id": "fullsitup",
@@ -135,7 +139,8 @@
 		"id": "jumpingsplitsquat",
 		"name": "Jumping Split Squat",
 		"description": "In lunge position, jump up, then return",
-		"categories": ["core", "legs", "cardio"]
+		"categories": ["core", "legs", "cardio"],
+		"switchSides": true
 	},
 	{
 		"id": "jumprope",
@@ -207,7 +212,8 @@
 		"id": "reverselunge",
 		"name": "Reverse Lunge",
 		"description": "",
-		"categories": ["legs"]
+		"categories": ["legs"],
+		"switchSides": true
 	},
 	{
 		"id": "russiantwists",
@@ -267,7 +273,8 @@
 		"id": "sideplanks",
 		"name": "Side Planks",
 		"description": "",
-		"categories": ["core"]
+		"categories": ["core"],
+		"switchSides": true
 	},
 	{
 		"id": "singlehops",
@@ -315,7 +322,8 @@
 		"id": "tpushup",
 		"name": "T Push Ups",
 		"description": "Do a push up then rotate to a one arm side plank, hold, then return to push up and repeat",
-		"categories": ["core"]
+		"categories": ["core"],
+		"switchSides": true
 	},
 	{
 		"id": "verticaljumps",

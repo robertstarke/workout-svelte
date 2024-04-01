@@ -6,6 +6,7 @@ export interface Exercise {
 	description: string;
 	categories: string[];
 	selected: boolean;
+	switchSides?: boolean;
 }
 
 export interface ExerciseStore extends Writable<Exercise[]> {

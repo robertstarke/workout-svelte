@@ -48,12 +48,11 @@
 	const exerciseAnimationOptions = { id: 'exerciseA', duration: $exerciseLength };
 
 	// Audio Beeps
-	const beep = (isLastBeep: boolean) => {
+	const beep = (frequency: number = 1240, duration: number = 0.2) => {
 		if (browser) {
 			const audioContext = new AudioContext();
 			const beeper = audioContext.createOscillator();
-			beeper.frequency.value = isLastBeep ? 540 : 1240;
-			const duration = isLastBeep ? 0.75 : 0.2;
+			beeper.frequency.value = frequency;
 			beeper.connect(audioContext.destination);
 			beeper.start();
 			beeper.stop(audioContext.currentTime + duration);
@@ -68,10 +67,17 @@
 		}
 		if (intervalLength <= 3000 && intervalLength % 1000 === 0) {
 			if (intervalLength < 1000) {
-				beep(true);
+				beep(540, 0.75);
 			} else {
-				beep(false);
+				beep();
 			}
+		}
+		if (
+			phase === 'exercise' &&
+			activeExercise.switchSides === true &&
+			intervalLength === $exerciseLength / 2
+		) {
+			beep(850, 0.5);
 		}
 		if (intervalLength <= 0) {
 			clearInterval(interval);
