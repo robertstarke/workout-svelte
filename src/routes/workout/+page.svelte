@@ -238,7 +238,7 @@
 						{/if}
 						<div><FormattedTime timeInMs={intervalLength} /></div>
 					{:else}
-						Congratulations you finished the excercise
+						Done! Good Job!
 					{/if}
 				</div>
 			</div>
