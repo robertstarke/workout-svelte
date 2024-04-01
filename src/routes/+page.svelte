@@ -86,13 +86,15 @@
 	>
 		<div class="pt-8 overflow-auto md:overflow-scroll">
 			<button
-				class="block w-full p-4 bg-rose-500 rounded-md text-zinc-800 text-2xl disabled:bg-stone-400 transition-colors hover:bg-rose-600 hover:text-zinc-900"
+				class="block w-full bg-rose-500 rounded-md text-zinc-800 text-2xl disabled:bg-stone-400 transition-colors hover:bg-rose-600 hover:text-zinc-900"
 				disabled={selectedExercisesAmount === 0}
 			>
 				{#if selectedExercisesAmount === 0}
-					Select Exercises To Start
+					<span class="block p-4">Exercises To Start</span>
 				{:else}
-					<a href="./workout">Start Workout</a>
+					<a class="block p-4" href="./workout" title="Start workout with selected exercises">
+						Start Workout
+					</a>
 				{/if}
 			</button>
 			<div class="mt-4 block w-full p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center">
