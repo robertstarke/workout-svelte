@@ -6,10 +6,22 @@
 		"categories": ["legs"]
 	},
 	{
+		"id": "armcircles",
+		"name": "Arm Circles",
+		"description": "Forward or backwards; large or small circles",
+		"categories": ["arms"]
+	},
+	{
 		"id": "bearcrawl",
 		"name": "Bear Crawl",
 		"description": "",
 		"categories": ["core", "arms"]
+	},
+	{
+		"id": "bicycles",
+		"name": "Bicycles",
+		"description": "",
+		"categories": ["core"]
 	},
 	{
 		"id": "birddogs",
@@ -24,6 +36,12 @@
 		"categories": ["core", "arms", "legs"]
 	},
 	{
+		"id": "buttkicks",
+		"name": "Butt Kicks",
+		"description": "Run in place, kick butt",
+		"categories": ["cardio"]
+	},
+	{
 		"id": "calfraises",
 		"name": "Calf Raises",
 		"description": "",
@@ -36,10 +54,22 @@
 		"categories": ["core"]
 	},
 	{
+		"id": "curtsylunge",
+		"name": "Curtsy Lunge",
+		"description": "While lunging bring one foot behind the other, until back thigh is almost parallel to floor",
+		"categories": ["legs"]
+	},
+	{
 		"id": "firehydrants",
 		"name": "Fire Hydrants",
 		"description": "On hands and knees, raise one leg to the side 90 degrees",
 		"categories": ["core"]
+	},
+	{
+		"id": "flutterkicks",
+		"name": "Flutterkicks",
+		"description": "",
+		"categories": ["legs"]
 	},
 	{
 		"id": "forwardlunge",
@@ -52,6 +82,12 @@
 		"name": "Full Sit Ups",
 		"description": "Lying on back, sit up and touch toes",
 		"categories": ["core"]
+	},
+	{
+		"id": "handrelease",
+		"name": "Hand Release Push Ups",
+		"description": "From Push up completely lower to floor release hands off ground, return to push up position",
+		"categories": ["arms"]
 	},
 	{
 		"id": "heeltouches",
@@ -72,16 +108,22 @@
 		"categories": ["core"]
 	},
 	{
+		"id": "hops",
+		"name": "Hop In Place",
+		"description": "Two feet hop in place",
+		"categories": ["legs", "cardio"]
+	},
+	{
 		"id": "hurdles",
 		"name": "Hurdles",
 		"description": "Standing, feet together, bring knee up and over an imaginary hurdle, tap floor, then return",
 		"categories": ["legs"]
 	},
 	{
-		"id": "jumprope",
-		"name": "Jump Rope",
-		"description": "Jump in place with an invisible jump rope",
-		"categories": ["cardio"]
+		"id": "inchworm",
+		"name": "Inch Worm",
+		"description": "From standing position touch toes, then inch forward on fingertips until a plank, then return",
+		"categories": ["core"]
 	},
 	{
 		"id": "jumpingjacks",
@@ -96,6 +138,12 @@
 		"categories": ["core", "legs", "cardio"]
 	},
 	{
+		"id": "jumprope",
+		"name": "Jump Rope",
+		"description": "Jump in place with an invisible jump rope",
+		"categories": ["cardio"]
+	},
+	{
 		"id": "longjumpjogback",
 		"name": "Long Jump With Jog Back",
 		"description": "From standing, jump forward, then tiny steps jog back",
@@ -106,6 +154,18 @@
 		"name": "March Steps",
 		"description": "",
 		"categories": ["cardio"]
+	},
+	{
+		"id": "mountainclimbers",
+		"name": "Mountain Climbers",
+		"description": "",
+		"categories": ["legs", "cardio"]
+	},
+	{
+		"id": "outsidemountainclimbers",
+		"name": "Outside Leg Mountain Climbers",
+		"description": "Mountain climbers, but leg is outside of arm",
+		"categories": ["core"]
 	},
 	{
 		"id": "plankjacks",
@@ -120,13 +180,19 @@
 		"categories": ["arms"]
 	},
 	{
-		"id": "push-upsdiamond",
+		"id": "pushups",
+		"name": "Push Ups",
+		"description": "",
+		"categories": ["core"]
+	},
+	{
+		"id": "pushupsdiamond",
 		"name": "Push-Ups: Diamond",
 		"description": "Push ups with hands touching",
 		"categories": ["core", "arms"]
 	},
 	{
-		"id": "push-upswidestance",
+		"id": "pushupswidestance",
 		"name": "Push-Ups: Widestance",
 		"description": "Push ups with wide arm stance",
 		"categories": ["core", "arms"]
@@ -150,16 +216,64 @@
 		"categories": ["core"]
 	},
 	{
+		"id": "scissorkicks",
+		"name": "scissorkicks",
+		"description": "",
+		"categories": ["legs"]
+	},
+	{
+		"id": "sealclaps",
+		"name": "Seal Claps",
+		"description": "Like jumping jacks; but as legs jump out; hands clap together in front with straight arms",
+		"categories": ["cardio"]
+	},
+	{
+		"id": "shouldertaps",
+		"name": "Shoulder Taps",
+		"description": "In plank position release one hand and tap alternate shoulder, then repeat on other side",
+		"categories": ["core"]
+	},
+	{
+		"id": "shufflesplits",
+		"name": "Shuffle Splits",
+		"description": "One leg forward one back, then switch quickly on repeat to shuffle",
+		"categories": ["legs", "cardio"]
+	},
+	{
+		"id": "shuttles",
+		"name": "Shuttles",
+		"description": "Shuttle side to side with quick steps",
+		"categories": ["legs", "cardio"]
+	},
+	{
 		"id": "sidecrunch",
 		"name": "Side Crunch",
 		"description": "",
 		"categories": ["core"]
 	},
 	{
+		"id": "sidehops",
+		"name": "Side Hops",
+		"description": "Jump side to side over imaginary line",
+		"categories": ["legs", "cardio"]
+	},
+	{
+		"id": "sidelunge",
+		"name": "Side Lunge",
+		"description": "",
+		"categories": ["legs"]
+	},
+	{
 		"id": "sideplanks",
 		"name": "Side Planks",
 		"description": "",
 		"categories": ["core"]
+	},
+	{
+		"id": "singlehops",
+		"name": "Single Foot Hop In Place",
+		"description": "One foot hop in place",
+		"categories": ["legs", "cardio"]
 	},
 	{
 		"id": "situps",
@@ -172,6 +286,12 @@
 		"name": "Skipping In Place",
 		"description": "",
 		"categories": ["cardio"]
+	},
+	{
+		"id": "slalomjumps",
+		"name": "Slalom Jumps",
+		"description": "Alternating single leg side jump",
+		"categories": ["legs", "cardio"]
 	},
 	{
 		"id": "squats",
@@ -192,10 +312,22 @@
 		"categories": ["core", "arms", "legs"]
 	},
 	{
+		"id": "tpushup",
+		"name": "T Push Ups",
+		"description": "Do a push up then rotate to a one arm side plank, hold, then return to push up and repeat",
+		"categories": ["core"]
+	},
+	{
 		"id": "verticaljumps",
 		"name": "Vertical Jumps",
 		"description": "Jump as high as possible, arms up",
 		"categories": ["legs"]
+	},
+	{
+		"id": "vups",
+		"name": "V Ups",
+		"description": "Lying on back, bring straight legs and straight arms to touch",
+		"categories": ["core"]
 	},
 	{
 		"id": "wallsquat",
