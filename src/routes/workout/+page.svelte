@@ -14,7 +14,7 @@
 	const repetitions: Writable<number> = getContext('repetitions');
 	const setOrCycle: Writable<string> = getContext('setOrCycle');
 
-	let workoutExercises = $selectedExercises;
+	let workoutExercises = $selectedExercises || [];
 
 	if ($repetitions > 1) {
 		const helperArray = Array($repetitions).fill('');
@@ -61,29 +61,18 @@
 
 	// tick callback
 	const intervalCallback = () => {
-		if (paused) {
+		if (paused || !activeExercise) {
 			clearInterval(interval);
 			return;
 		}
-		if (intervalLength <= 3000 && intervalLength % 1000 === 0) {
-			if (intervalLength < 1000) {
-				beep(540, 0.75);
-			} else {
-				beep();
-			}
-		}
-		if (
-			phase === 'exercise' &&
-			activeExercise.switchSides === true &&
-			intervalLength === $exerciseLength / 2
-		) {
-			beep(850, 0.5);
-		}
+
 		if (intervalLength <= 0) {
 			clearInterval(interval);
+
 			if (phase === 'exercise' && activeExerciseIndex === workoutExercises.length - 1) {
 				return;
 			}
+
 			if (phase === 'rest') {
 				phase = 'exercise';
 				intervalLength = $exerciseLength;
@@ -92,8 +81,27 @@
 				intervalLength = $restLength;
 				activeExerciseIndex++;
 			}
+
 			interval = setInterval(intervalCallback, 100);
 		}
+
+		if (intervalLength <= 3000 && intervalLength % 1000 === 0) {
+			if (intervalLength < 1000) {
+				beep(540, 0.75);
+			} else {
+				beep();
+			}
+		}
+
+		if (
+			phase === 'exercise' &&
+			activeExercise &&
+			activeExercise.switchSides === true &&
+			intervalLength === $exerciseLength / 2
+		) {
+			beep(850, 0.5);
+		}
+
 		intervalLength = intervalLength - 100;
 		remainingTime = remainingTime - 100;
 	};
@@ -101,6 +109,12 @@
 	let interval = setInterval(intervalCallback, 100);
 
 	$: if (browser) {
+		if (navigator.wakeLock !== undefined) {
+			navigator.wakeLock.request('screen').then((lock) => {
+				setTimeout(() => lock.release(), fullTime);
+			});
+		}
+
 		const indicatorElement = document.getElementById('wa-indicator');
 
 		let restAnimation = indicatorElement?.animate(animationFrames, restAnimationOptions);
@@ -117,10 +131,11 @@
 	}
 
 	if (browser && workoutExercises.length === 0) {
+		clearInterval(interval);
 		goto('./');
 	}
 
-	$: activeExercise = workoutExercises[activeExerciseIndex];
+	$: activeExercise = workoutExercises[activeExerciseIndex || 0];
 
 	$: normalizedTime = ((remainingTime - 1000) / fullTime) * 100;
 
