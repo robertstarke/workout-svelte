@@ -223,7 +223,7 @@
 	},
 	{
 		"id": "scissorkicks",
-		"name": "scissorkicks",
+		"name": "Scissor Kicks",
 		"description": "",
 		"categories": ["legs"]
 	},
@@ -255,7 +255,8 @@
 		"id": "sidecrunch",
 		"name": "Side Crunch",
 		"description": "",
-		"categories": ["core"]
+		"categories": ["core"],
+		"switchSides": true
 	},
 	{
 		"id": "sidehops",
