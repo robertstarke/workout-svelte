@@ -84,20 +84,24 @@
 	<section
 		class="h-auto md:h-lvh px-8 grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8 overflow-auto md:overflow-hidden"
 	>
-		<div class="pt-8 overflow-auto md:overflow-scroll">
-			<button
-				class="block w-full bg-rose-500 rounded-md text-zinc-800 text-2xl disabled:bg-stone-400 transition-colors hover:bg-rose-600 hover:text-zinc-900"
-				disabled={selectedExercisesAmount === 0}
+		<div class="relative pt-32 md:pt-0 overflow-auto md:overflow-scroll">
+			<div
+				class="z-20 fixed top-0 md:relative md:top-auto w-[calc(100%-4rem)] md:w-full py-8 bg-white"
 			>
-				{#if selectedExercisesAmount === 0}
-					<span class="block p-4">Exercises To Start</span>
-				{:else}
-					<a class="block p-4" href="./workout" title="Start workout with selected exercises">
-						Start Workout
-					</a>
-				{/if}
-			</button>
-			<div class="mt-4 block w-full p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center">
+				<button
+					class="block w-full bg-rose-500 rounded-md text-zinc-800 text-2xl disabled:bg-stone-400 transition-colors hover:bg-rose-600 hover:text-zinc-900"
+					disabled={selectedExercisesAmount === 0}
+				>
+					{#if selectedExercisesAmount === 0}
+						<span class="block p-4">Exercises To Start</span>
+					{:else}
+						<a class="block p-4" href="./workout" title="Start workout with selected exercises">
+							Start Workout
+						</a>
+					{/if}
+				</button>
+			</div>
+			<div class="block w-full p-4 bg-zinc-900 rounded-md text-4xl text-rose-500 text-center">
 				<span class="block mb-2 text-2xl">Total Workout Time</span>
 				<FormattedTime timeInMs={workoutLength} />
 			</div>
