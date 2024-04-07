@@ -66,6 +66,14 @@
 			return;
 		}
 
+		if (intervalLength <= 3000 && intervalLength % 1000 === 0) {
+			if (intervalLength < 1000) {
+				beep(540, 0.5);
+			} else {
+				beep();
+			}
+		}
+
 		if (intervalLength <= 0) {
 			clearInterval(interval);
 
@@ -85,21 +93,8 @@
 			interval = setInterval(intervalCallback, 100);
 		}
 
-		if (intervalLength <= 3000 && intervalLength % 1000 === 0) {
-			if (intervalLength < 1000) {
-				beep(540, 0.75);
-			} else {
-				beep();
-			}
-		}
-
-		if (
-			phase === 'exercise' &&
-			activeExercise &&
-			activeExercise.switchSides === true &&
-			intervalLength === $exerciseLength / 2
-		) {
-			beep(850, 0.5);
+		if (phase === 'exercise' && activeExercise && intervalLength === $exerciseLength / 2) {
+			beep(850, 0.3);
 		}
 
 		intervalLength = intervalLength - 100;
