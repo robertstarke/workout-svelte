@@ -165,7 +165,7 @@
 				<X size="40" />
 			</button>
 		</a>
-		<div class="w-full text-3xl text-rose-500 text-center">
+		<div class="w-full sm:text-3xl xl:text-4xl text-rose-500 text-center">
 			<FormattedTime timeInMs={remainingTime} />
 		</div>
 		<div class="flex-none">
@@ -182,10 +182,27 @@
 			</button>
 		</div>
 	</div>
-	<div class="custom-height">
+	<div
+		class="p-8 h-[calc(100lvh-9.5rem)] flex landscape:flex-row portrait:flex-col justify-stretch items-stretch gap-8"
+	>
+		<div class="flex-grow flex justify-center items-center text-rose-500">
+			<div class="sm:text-4xl xl:text-6xl text-center space-y-3">
+				{#if remainingTime > 0}
+					{#if phase === 'rest'}
+						<div>Rest</div>
+						<div class="sm:text-3xl xl:text-4xl">Next: {activeExercise.name}</div>
+					{:else}
+						<div class="text-lime-500">{activeExercise.name}</div>
+					{/if}
+					<div class="sm:text-lg xl:text-2xl text-stone-50">{activeExercise.description}</div>
+				{:else}
+					<div class="text-lime-500">Done! Good Job!</div>
+				{/if}
+			</div>
+		</div>
 		<div class="relative h-full flex justify-center items-stretch">
 			<svg
-				class="z-30 w-auto h-full -rotate-90"
+				class="z-30 w-auto h-full"
 				width={size}
 				height={size}
 				viewBox={`0 0 ${size} ${size}`}
@@ -208,7 +225,7 @@
 					cy={center}
 					r={radius}
 					fill="none"
-					class="stroke-current fill-transparent"
+					class="stroke-current fill-transparent -rotate-90 origin-center"
 					class:text-rose-500={phase === 'rest'}
 					class:text-lime-500={phase === 'exercise'}
 					stroke-width={indicatorWidth}
@@ -226,30 +243,17 @@
 					class:fill-lime-500={phase === 'exercise'}
 					class:wa-animate-ping={intervalLength <= 3000}
 				></circle>
-				<circle
-					id="wa-inner"
-					cx={center}
-					cy={center}
-					r={radius - 8}
-					class:fill-rose-300={phase === 'rest'}
-					class:fill-lime-300={phase === 'exercise'}
-				></circle>
+				<circle id="wa-inner" class="fill-zinc-800" cx={center} cy={center} r={radius - 7}></circle>
 			</svg>
 			<div
 				class="z-40 absolute flex justify-center items-center aspect-square top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2 rounded-full"
 			>
-				<div class="text-3xl text-center">
-					{#if remainingTime > 0}
-						{#if phase === 'rest'}
-							<div class="mb-2">Rest</div>
-							<div class="mb-6 text-2xl">Next: {activeExercise.name}</div>
-						{:else}
-							<div class="mb-6">{activeExercise.name}</div>
-						{/if}
-						<div><FormattedTime timeInMs={intervalLength} /></div>
-					{:else}
-						Done! Good Job!
-					{/if}
+				<div
+					class="text-center sm:text-4xl xl:text-8xl"
+					class:text-rose-500={phase === 'rest'}
+					class:text-lime-500={phase === 'exercise'}
+				>
+					<FormattedTime timeInMs={intervalLength} />
 				</div>
 			</div>
 		</div>
@@ -257,10 +261,6 @@
 </div>
 
 <style>
-	.custom-height {
-		height: calc(100lvh - 9.5rem);
-	}
-
 	.wa-animate-ping {
 		animation: ping 1s cubic-bezier(0.39, 0.58, 0.57, 1) infinite;
 	}
