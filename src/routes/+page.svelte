@@ -93,7 +93,7 @@
 					disabled={selectedExercisesAmount === 0}
 				>
 					{#if selectedExercisesAmount === 0}
-						<span class="block p-4">Exercises To Start</span>
+						<span class="block p-4">Select Exercises</span>
 					{:else}
 						<a class="block p-4" href="./workout" title="Start workout with selected exercises">
 							Start Workout
