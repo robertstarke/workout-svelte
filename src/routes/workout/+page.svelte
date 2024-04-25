@@ -165,7 +165,7 @@
 				<X size="40" />
 			</button>
 		</a>
-		<div class="w-full sm:text-3xl xl:text-4xl text-rose-500 text-center">
+		<div class="w-full text-3xl xl:text-4xl text-rose-500 text-center">
 			<FormattedTime timeInMs={remainingTime} />
 		</div>
 		<div class="flex-none">
@@ -186,15 +186,15 @@
 		class="p-8 h-[calc(100lvh-9.5rem)] flex landscape:flex-row portrait:flex-col justify-stretch items-stretch gap-8"
 	>
 		<div class="flex-grow flex justify-center items-center text-rose-500">
-			<div class="sm:text-4xl xl:text-6xl text-center space-y-3">
+			<div class="text-4xl xl:text-6xl text-center space-y-3">
 				{#if remainingTime > 0}
 					{#if phase === 'rest'}
 						<div>Rest</div>
-						<div class="sm:text-3xl xl:text-4xl">Next: {activeExercise.name}</div>
+						<div class="text-3xl xl:text-4xl">Next: {activeExercise.name}</div>
 					{:else}
 						<div class="text-lime-500">{activeExercise.name}</div>
 					{/if}
-					<div class="sm:text-lg xl:text-2xl text-stone-50">{activeExercise.description}</div>
+					<div class="text-lg xl:text-2xl text-stone-50">{activeExercise.description}</div>
 				{:else}
 					<div class="text-lime-500">Done! Good Job!</div>
 				{/if}
@@ -249,7 +249,7 @@
 				class="z-40 absolute flex justify-center items-center aspect-square top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2 rounded-full"
 			>
 				<div
-					class="text-center sm:text-4xl xl:text-8xl"
+					class="text-center text-4xl xl:text-8xl"
 					class:text-rose-500={phase === 'rest'}
 					class:text-lime-500={phase === 'exercise'}
 				>
