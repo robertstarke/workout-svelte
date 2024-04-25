@@ -71,4 +71,8 @@
 	setContext('setOrCycle', writable('cycle'));
 </script>
 
+<svelte:head>
+	<script src="/DragDropTouch.js"></script>
+</svelte:head>
+
 <slot />
