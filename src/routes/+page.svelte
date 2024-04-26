@@ -2,23 +2,21 @@
 	import { getContext } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { Circle, CheckCircle, Shuffle, Square, CheckSquare } from 'lucide-svelte';
-	import {
-		type Exercise,
-		type ExerciseStore,
-		type SelectedExerciseStore
+	import type {
+		Exercise,
+		ExerciseStore,
+		SelectedExerciseStore,
+		WorkoutSettingsStore
 	} from '$lib/types/customTypes';
-	import type { Writable } from 'svelte/store';
 	import ExerciseList from '../components/ExerciseList.svelte';
 	import DraggableExerciseList from '../components/DraggableExerciseList.svelte';
 	import FormattedTime from '../components/FormattedTime.svelte';
 	import CategoryColorIndicator from '../components/CategoryColorIndicator.svelte';
+	import Fuse from 'fuse.js';
 
 	const exercises: ExerciseStore = getContext('exercises');
 	const selectedExercises: SelectedExerciseStore = getContext('selectedExercises');
-	const exerciseLength: Writable<number> = getContext('exerciseLength');
-	const restLength: Writable<number> = getContext('restLength');
-	const repetitions: Writable<number> = getContext('repetitions');
-	const setOrCycle: Writable<string> = getContext('setOrCycle');
+	const workoutSettings: WorkoutSettingsStore = getContext('workoutSettings');
 	let randomCount = 10;
 	const allExerciseCategories = $exercises.reduce((categories: string[], exercise: Exercise) => {
 		let exerciseCategories = exercise.categories;
@@ -29,14 +27,31 @@
 		});
 		return categories;
 	}, []);
+
 	let categoriesForRandom = allExerciseCategories;
 
-	$: filteredExercises = $exercises.filter((exercise: Exercise) =>
-		exercise.categories.some((category: string) => categoriesForRandom.includes(category))
-	);
+	$: fuse = new Fuse($exercises, {
+		minMatchCharLength: 2,
+		shouldSort: false,
+		threshold: 0.2,
+		keys: ['name', 'categories']
+	});
+
+	let query = '';
+	let filteredExercises: Exercise[];
+
+	$: if (query.length < 2) {
+		filteredExercises = $exercises.filter((exercise: Exercise) =>
+			exercise.categories.some((category: string) => categoriesForRandom.includes(category))
+		);
+	} else {
+		filteredExercises = fuse.search(query).map((item) => item.item);
+	}
 	$: if (filteredExercises.length < randomCount) randomCount = filteredExercises.length;
-	$: selectedExercisesAmount = $selectedExercises.length;
-	$: workoutLength = ($exerciseLength + $restLength) * selectedExercisesAmount * $repetitions;
+	$: workoutLength =
+		($workoutSettings.exerciseLength + $workoutSettings.restLength) *
+		$selectedExercises.length *
+		$workoutSettings.repetitions;
 
 	const handleSelectExerciseEvent = (event: {
 		detail: { exercise: Exercise; checked: boolean };
@@ -90,9 +105,9 @@
 			>
 				<button
 					class="block w-full bg-rose-500 rounded-md text-zinc-800 text-2xl disabled:bg-stone-400 transition-colors hover:bg-rose-600 hover:text-zinc-900"
-					disabled={selectedExercisesAmount === 0}
+					disabled={$selectedExercises.length === 0}
 				>
-					{#if selectedExercisesAmount === 0}
+					{#if $selectedExercises.length === 0}
 						<span class="block p-4">Select Exercises</span>
 					{:else}
 						<a class="block p-4" href="./workout" title="Start workout with selected exercises">
@@ -109,7 +124,7 @@
 				<label for="exerciseLength" class="flex flex-row items-center gap-4">
 					<span
 						class="flex-none w-24 px-3 py-2 bg-zinc-900 rounded-md text-3xl text-rose-500 text-center"
-						>{$exerciseLength / 1000}s</span
+						>{$workoutSettings.exerciseLength / 1000}s</span
 					>
 					<span class="flex-auto flex flex-col">
 						<span class="text-xl">Exercise Length</span>
@@ -120,14 +135,14 @@
 							step="5000"
 							min="10000"
 							max="180000"
-							bind:value={$exerciseLength}
+							bind:value={$workoutSettings.exerciseLength}
 						/>
 					</span>
 				</label>
 				<label for="restLength" class="flex flex-row items-center gap-4">
 					<span
 						class="flex-none w-24 px-3 py-2 bg-zinc-900 rounded-md text-3xl text-rose-500 text-center"
-						>{$restLength / 1000}s</span
+						>{$workoutSettings.restLength / 1000}s</span
 					>
 					<span class="flex-auto flex flex-col">
 						<span class="text-xl">Rest Length</span>
@@ -138,14 +153,14 @@
 							step="5000"
 							min="5000"
 							max="120000"
-							bind:value={$restLength}
+							bind:value={$workoutSettings.restLength}
 						/>
 					</span>
 				</label>
 				<label for="repetitions" class="flex flex-row items-center gap-4">
 					<span
 						class="flex-none w-24 px-3 py-2 bg-zinc-900 rounded-md text-3xl text-rose-500 text-center"
-						>{$repetitions}</span
+						>{$workoutSettings.repetitions}</span
 					>
 					<span class="flex-auto flex flex-col">
 						<span class="text-xl">Repetitions</span>
@@ -156,11 +171,11 @@
 							step="1"
 							min="1"
 							max="10"
-							bind:value={$repetitions}
+							bind:value={$workoutSettings.repetitions}
 						/>
 					</span>
 				</label>
-				{#if $repetitions > 1}
+				{#if $workoutSettings.repetitions > 1}
 					<div transition:fade={{ duration: 200 }}>
 						<div class="grid grid-cols-2 items-stretch justify-items-stretch gap-4">
 							{#each ['set', 'cycle'] as repetition}
@@ -173,14 +188,14 @@
 										id={repetition}
 										value={repetition}
 										name="setOrCycle"
-										bind:group={$setOrCycle}
+										bind:group={$workoutSettings.setOrCycle}
 										class="hidden peer"
 									/>
 									<span class="p-4">{repetition[0].toUpperCase()}{repetition.slice(1)}</span>
 									<span
 										class="flex-none flex items-center justify-center w-16 rounded-r-md bg-stone-400 text-zinc-800 peer-checked:bg-rose-500"
 									>
-										{#if $setOrCycle === repetition}
+										{#if $workoutSettings.setOrCycle === repetition}
 											<CheckCircle />
 										{:else}
 											<Circle />
@@ -193,6 +208,40 @@
 				{/if}
 				<div class="mt-8">
 					<h2 class="text-2xl">Randomize exercises</h2>
+					<label for="randomizer" class="mt-4 flex flex-row items-center gap-4">
+						<span class="w-full flex flex-col">
+							<span class="text-xl">Amount of exercises</span>
+							<input
+								id="randomizer"
+								class="w-full"
+								type="range"
+								step="1"
+								min="0"
+								max={filteredExercises.length}
+								bind:value={randomCount}
+							/>
+						</span>
+					</label>
+					<button
+						class="w-full mt-4 px-4 py-2 flex flex-row gap-4 justify-center items-center bg-rose-500 rounded-md text-2xl text-zinc-900 hover:bg-rose-400 hover:text-zinc-800 disabled:bg-stone-400"
+						on:click={handleRandomizeExercises}
+						disabled={randomCount === 0}
+					>
+						<span class="flex-none flex flex-row justify-center items-center"><Shuffle /></span>
+						<span class="">Randomize {randomCount} Exercises</span>
+					</button>
+				</div>
+
+				<div class="mt-8 pb-8">
+					<h2 class="text-2xl">Search and Filters</h2>
+					<label for="search" class="hidden">Search Exercises</label>
+					<input
+						id="search"
+						type="text"
+						bind:value={query}
+						placeholder="Search exercises"
+						class="w-full mt-4 px-3 py-2 border border-zinc-900 rounded-md active:ring-2 focus:ring-2"
+					/>
 					<div class="mt-4 flex flex-row gap-3 flex-wrap">
 						{#each allExerciseCategories as category}
 							<label
@@ -221,37 +270,15 @@
 							</label>
 						{/each}
 					</div>
-					<label for="randomizer" class="mt-4 flex flex-row items-center gap-4">
-						<span class="w-full flex flex-col">
-							<span class="text-xl">Amount of exercises</span>
-							<input
-								id="randomizer"
-								class="w-full"
-								type="range"
-								step="1"
-								min="1"
-								max={filteredExercises.length}
-								bind:value={randomCount}
-							/>
-						</span>
-					</label>
-					<button
-						class="w-full mt-4 px-4 py-2 flex flex-row gap-4 justify-center items-center bg-rose-500 rounded-md text-2xl text-zinc-900 hover:bg-rose-400 hover:text-zinc-800 disabled:bg-stone-400"
-						on:click={handleRandomizeExercises}
-						disabled={randomCount === 0}
-					>
-						<span class="flex-none flex flex-row justify-center items-center"><Shuffle /></span>
-						<span class="">Randomize {randomCount} Exercises</span>
-					</button>
 				</div>
 			</div>
 		</div>
 		<div
 			class="relative pb-8 col-span-1 xl:col-span-2 2xl:col-span-3 overflow-auto md:overflow-scroll"
 		>
-			<h2 class="block md:fixed w-full pt-8 pb-4 bg-white text-2xl text-zinc-800">All Exercises</h2>
+			<h2 class="md:fixed w-full pt-8 pb-4 bg-white text-2xl text-zinc-800">All Exercises</h2>
 			<div class="pt-0 md:pt-20">
-				<ExerciseList exercises={$exercises} on:selectExercise={handleSelectExerciseEvent} />
+				<ExerciseList exercises={filteredExercises} on:selectExercise={handleSelectExerciseEvent} />
 			</div>
 		</div>
 		<div class="relative pb-8 overflow-auto md:overflow-scroll">

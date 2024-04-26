@@ -1,6 +1,5 @@
 <script lang="ts">
-	import type { ExerciseStore, Exercise } from '$lib/types/customTypes';
-	import type { Writable } from 'svelte/store';
+	import type { ExerciseStore, Exercise, WorkoutSettingsStore } from '$lib/types/customTypes';
 	import { getContext } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
@@ -9,20 +8,17 @@
 
 	// Stores
 	const selectedExercises: ExerciseStore = getContext('selectedExercises');
-	const exerciseLength: Writable<number> = getContext('exerciseLength');
-	const restLength: Writable<number> = getContext('restLength');
-	const repetitions: Writable<number> = getContext('repetitions');
-	const setOrCycle: Writable<string> = getContext('setOrCycle');
+	const workoutSettings: WorkoutSettingsStore = getContext('workoutSettings');
 
 	let workoutExercises = $selectedExercises || [];
 
-	if ($repetitions > 1) {
-		const helperArray = Array($repetitions).fill('');
-		if ($setOrCycle === 'set') {
+	if ($workoutSettings.repetitions > 1) {
+		const helperArray = Array($workoutSettings.repetitions).fill('');
+		if ($workoutSettings.setOrCycle === 'set') {
 			workoutExercises = workoutExercises.flatMap((exercise: Exercise) =>
 				helperArray.map(() => exercise)
 			);
-		} else if ($setOrCycle === 'cycle') {
+		} else if ($workoutSettings.setOrCycle === 'cycle') {
 			workoutExercises = helperArray.flatMap(() => [...workoutExercises]);
 		}
 	}
@@ -30,11 +26,12 @@
 	const size = 128;
 	const trackWidth = 3;
 	const indicatorWidth = 3;
-	let intervalLength: number = $restLength;
+	let intervalLength: number = $workoutSettings.restLength;
 	let paused: boolean = false;
 	let phase: string = 'rest';
 	let activeExerciseIndex: number = 0;
-	const fullTime: number = ($exerciseLength + $restLength) * workoutExercises.length;
+	const fullTime: number =
+		($workoutSettings.exerciseLength + $workoutSettings.restLength) * workoutExercises.length;
 	let remainingTime: number = fullTime;
 
 	const center = size / 2;
@@ -44,8 +41,8 @@
 
 	// Animations
 	const animationFrames = [{ strokeDashoffset: dashArray }, { strokeDashoffset: 0 }];
-	const restAnimationOptions = { id: 'restA', duration: $restLength };
-	const exerciseAnimationOptions = { id: 'exerciseA', duration: $exerciseLength };
+	const restAnimationOptions = { id: 'restA', duration: $workoutSettings.restLength };
+	const exerciseAnimationOptions = { id: 'exerciseA', duration: $workoutSettings.exerciseLength };
 
 	// Audio Beeps
 	const beep = (frequency: number = 1240, duration: number = 0.2) => {
@@ -83,17 +80,21 @@
 
 			if (phase === 'rest') {
 				phase = 'exercise';
-				intervalLength = $exerciseLength;
+				intervalLength = $workoutSettings.exerciseLength;
 			} else {
 				phase = 'rest';
-				intervalLength = $restLength;
+				intervalLength = $workoutSettings.restLength;
 				activeExerciseIndex++;
 			}
 
 			interval = setInterval(intervalCallback, 100);
 		}
 
-		if (phase === 'exercise' && activeExercise && intervalLength === $exerciseLength / 2) {
+		if (
+			phase === 'exercise' &&
+			activeExercise &&
+			intervalLength === $workoutSettings.exerciseLength / 2
+		) {
 			beep(850, 0.3);
 		}
 

@@ -14,33 +14,36 @@
 		dispatch('swapExercise', { idOld, idNew });
 	};
 
-	let draggedItem = null;
 	let draggedItemId = '';
 
 	// handle drag events
 	const handleDragStart = (e: DragEvent, exerciseId: string) => {
-		draggedItem = e.currentTarget;
 		draggedItemId = exerciseId;
 		e.dataTransfer.dropEffect = 'move';
 		e.currentTarget.classList.add('opacity-50');
+
+		let draggableElements = document.querySelectorAll('.draggable');
+		draggableElements.forEach((element) => element.classList.add('disableChildPointerEvents'));
 	};
 	const handleDragEnd = (e: DragEvent) => {
-		draggedItem = null;
 		if (e.currentTarget) {
 			e.currentTarget.classList.remove('opacity-50');
+			let draggableElements = document.querySelectorAll('.draggable');
+			draggableElements.forEach((element) =>
+				element.classList.remove('disableChildPointerEvents', 'opacity-50')
+			);
 		}
 	};
-	const handleDragDrop = (e: DragEvent, exerciseId: string) => {
+	const handleDragDrop = (_: DragEvent, exerciseId: string) => {
 		swapExercise(draggedItemId, exerciseId);
 	};
-	const handleDragOver = (e: DragEvent) => {
-		// visual swap
-	};
+	const handleDragOver = () => {};
 	const handleDragEnter = (e: DragEvent) => {
+		e.currentTarget.classList.add('opacity-50');
 		// visual swap
 	};
 	const handleDragLeave = (e: DragEvent) => {
-		// visual swap
+		e.currentTarget.classList.remove('opacity-50');
 	};
 </script>
 
@@ -57,32 +60,35 @@
 				on:dragstart={(e) => handleDragStart(e, exercise.id)}
 				on:dragend={handleDragEnd}
 				on:drop={(e) => handleDragDrop(e, exercise.id)}
+				on:dragover|preventDefault={handleDragOver}
 				on:dragenter|preventDefault={handleDragEnter}
 				on:dragleave|preventDefault={handleDragLeave}
-				on:dragover|preventDefault={handleDragOver}
+				class="draggable pr-4 w-full flex flex-row gap-4 justify-stretch items-stretch bg-zinc-900 rounded-md cursor-pointer transition-all"
 			>
-				<div
-					class="pr-4 w-full flex flex-row gap-4 justify-stretch items-stretch bg-zinc-900 rounded-md cursor-pointer"
-				>
-					<CategoryColorIndicator categories={exercise.categories} />
+				<CategoryColorIndicator categories={exercise.categories} />
 
-					<span class="py-2 flex-none flex justify-center items-center text-stone-50 text-4xl"
-						><GripHorizontal /></span
-					>
-					<span class="flex-grow block py-2">
-						<span class="block text-xl text-rose-500">{exercise.name}</span>
-						<span class="block text-sm text-stone-50">{exercise.description}</span>
+				<span class="py-2 flex-none flex justify-center items-center text-stone-50 text-4xl"
+					><GripHorizontal /></span
+				>
+				<span class="flex-grow block py-2">
+					<span class="block text-xl text-rose-500">{exercise.name}</span>
+					<span class="block text-sm text-stone-50">{exercise.description}</span>
+				</span>
+				<button
+					class="flex-none flex items-center justify-center rounded-r-md text-rose-500"
+					on:click={() => removeExercise(exercise)}
+				>
+					<span class="text-4xl">
+						<Trash2 />
 					</span>
-					<button
-						class="flex-none flex items-center justify-center rounded-r-md text-rose-500"
-						on:click={() => removeExercise(exercise)}
-					>
-						<span class="text-4xl">
-							<Trash2 />
-						</span>
-					</button>
-				</div>
+				</button>
 			</li>
 		{/each}
 	</ul>
 {/if}
+
+<style>
+	:global(.draggable.disableChildPointerEvents *) {
+		pointer-events: none;
+	}
+</style>

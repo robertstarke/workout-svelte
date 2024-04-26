@@ -2,7 +2,13 @@
 	import '../app.css';
 	import { setContext } from 'svelte';
 	import { writable } from 'svelte/store';
-	import type { Exercise, ExerciseStore, SelectedExerciseStore } from '$lib/types/customTypes';
+	import type {
+		Exercise,
+		ExerciseStore,
+		SelectedExerciseStore,
+		WorkoutSettingsStore,
+		WorkoutSettings
+	} from '$lib/types/customTypes';
 	import exerciseData from '$lib/data/exercises.json';
 
 	// exercises list store
@@ -63,12 +69,17 @@
 		}
 	};
 
+	const workoutSettingsDefaults: WorkoutSettings = {
+		exerciseLength: 45000,
+		restLength: 15000,
+		repetitions: 1,
+		setOrCycle: 'cycle'
+	};
+	const workoutSettings: WorkoutSettingsStore = writable(workoutSettingsDefaults);
+
 	setContext('exercises', exercises);
 	setContext('selectedExercises', selectedExercises);
-	setContext('exerciseLength', writable(45000));
-	setContext('restLength', writable(15000));
-	setContext('repetitions', writable(1));
-	setContext('setOrCycle', writable('cycle'));
+	setContext('workoutSettings', workoutSettings);
 </script>
 
 <svelte:head>
