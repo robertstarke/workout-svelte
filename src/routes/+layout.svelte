@@ -83,7 +83,7 @@
 </script>
 
 <svelte:head>
-	<script src="/DragDropTouch.js"></script>
+	<script src="/workout/DragDropTouch.js"></script>
 </svelte:head>
 
 <slot />

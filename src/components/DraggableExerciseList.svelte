@@ -19,7 +19,6 @@
 	// handle drag events
 	const handleDragStart = (e: DragEvent, exerciseId: string) => {
 		draggedItemId = exerciseId;
-		e.dataTransfer.dropEffect = 'move';
 		e.currentTarget.classList.add('opacity-50');
 
 		let draggableElements = document.querySelectorAll('.draggable');
