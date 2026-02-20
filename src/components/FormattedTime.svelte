@@ -1,6 +1,6 @@
 <script>
-	export let timeInMs = 0;
-	$: timeInSeconds = Math.ceil(timeInMs / 1000);
+	let { timeInMs = 0 } = $props();
+	let timeInSeconds = $derived(Math.ceil(timeInMs / 1000));
 </script>
 
 <span>

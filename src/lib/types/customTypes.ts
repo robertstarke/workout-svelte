@@ -1,5 +1,3 @@
-import type { Writable } from 'svelte/store';
-
 export interface Exercise {
 	id: string;
 	name: string;
@@ -16,16 +14,20 @@ export interface WorkoutSettings {
 	setOrCycle: 'set' | 'cycle';
 }
 
-export interface ExerciseStore extends Writable<Exercise[]> {
+export interface ExerciseStore {
+	exercises: Exercise[];
 	select: (exercise: Exercise, selected: boolean) => void;
 	deselectAll: () => void;
 }
 
-export interface SelectedExerciseStore extends Writable<Exercise[]> {
+export interface SelectedExerciseStore {
+	exercises: Exercise[];
 	add: (exercise: Exercise) => void;
 	remove: (exercise: Exercise) => void;
 	removeAll: () => void;
 	swap: (indexOld: number, indexNew: number) => void;
 }
 
-export interface WorkoutSettingsStore extends Writable<WorkoutSettings> {}
+export interface WorkoutSettingsStore {
+	settings: WorkoutSettings;
+}

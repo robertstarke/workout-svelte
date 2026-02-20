@@ -14,83 +14,87 @@
 	import CategoryColorIndicator from '../components/CategoryColorIndicator.svelte';
 	import Fuse from 'fuse.js';
 
-	const exercises: ExerciseStore = getContext('exercises');
-	const selectedExercises: SelectedExerciseStore = getContext('selectedExercises');
-	const workoutSettings: WorkoutSettingsStore = getContext('workoutSettings');
-	let randomCount = 10;
-	const allExerciseCategories = $exercises.reduce((categories: string[], exercise: Exercise) => {
-		let exerciseCategories = exercise.categories;
-		exerciseCategories.forEach((category: string) => {
-			if (!categories.includes(category)) {
-				categories.push(category);
-			}
-		});
-		return categories;
-	}, []);
+	const exerciseStore: ExerciseStore = getContext('exercises');
+	const selectedExerciseStore: SelectedExerciseStore = getContext('selectedExercises');
+	const workoutSettingsStore: WorkoutSettingsStore = getContext('workoutSettings');
 
-	let categoriesForRandom = allExerciseCategories;
+	let randomCount = $state(10);
+	const allExerciseCategories = exerciseStore.exercises.reduce(
+		(categories: string[], exercise: Exercise) => {
+			let exerciseCategories = exercise.categories;
+			exerciseCategories.forEach((category: string) => {
+				if (!categories.includes(category)) {
+					categories.push(category);
+				}
+			});
+			return categories;
+		},
+		[]
+	);
 
-	$: fuse = new Fuse($exercises, {
-		minMatchCharLength: 2,
-		shouldSort: false,
-		threshold: 0.2,
-		keys: ['name', 'categories']
+	let categoriesForRandom: string[] = $state([...allExerciseCategories]);
+
+	let fuse = $derived(
+		new Fuse(exerciseStore.exercises, {
+			minMatchCharLength: 2,
+			shouldSort: false,
+			threshold: 0.2,
+			keys: ['name', 'categories']
+		})
+	);
+
+	let query = $state('');
+
+	let filteredExercises = $derived.by(() => {
+		if (query.length < 2) {
+			return exerciseStore.exercises.filter((exercise: Exercise) =>
+				exercise.categories.some((category: string) => categoriesForRandom.includes(category))
+			);
+		} else {
+			return fuse.search(query).map((item) => item.item);
+		}
 	});
 
-	let query = '';
-	let filteredExercises: Exercise[];
+	$effect(() => {
+		if (filteredExercises.length < randomCount) randomCount = filteredExercises.length;
+	});
 
-	$: if (query.length < 2) {
-		filteredExercises = $exercises.filter((exercise: Exercise) =>
-			exercise.categories.some((category: string) => categoriesForRandom.includes(category))
-		);
-	} else {
-		filteredExercises = fuse.search(query).map((item) => item.item);
-	}
-	$: if (filteredExercises.length < randomCount) randomCount = filteredExercises.length;
-	$: workoutLength =
-		($workoutSettings.exerciseLength + $workoutSettings.restLength) *
-		$selectedExercises.length *
-		$workoutSettings.repetitions;
+	let workoutLength = $derived(
+		(workoutSettingsStore.settings.exerciseLength + workoutSettingsStore.settings.restLength) *
+			selectedExerciseStore.exercises.length *
+			workoutSettingsStore.settings.repetitions
+	);
 
-	const handleSelectExerciseEvent = (event: {
-		detail: { exercise: Exercise; checked: boolean };
-	}) => {
-		const exercise: Exercise = event.detail.exercise;
-		const checked: boolean = event.detail.checked;
-
-		exercises.select(exercise, checked);
+	const handleSelectExercise = (exercise: Exercise, checked: boolean) => {
+		exerciseStore.select(exercise, checked);
 
 		if (checked) {
-			selectedExercises.add(exercise);
+			selectedExerciseStore.add(exercise);
 		} else {
-			selectedExercises.remove(exercise);
+			selectedExerciseStore.remove(exercise);
 		}
 	};
-	const handleRemoveExerciseEvent = (event: { detail: { exercise: Exercise } }) => {
-		const exercise = event.detail.exercise;
-		exercises.select(exercise, false);
-		selectedExercises.remove(exercise);
+	const handleRemoveExercise = (exercise: Exercise) => {
+		exerciseStore.select(exercise, false);
+		selectedExerciseStore.remove(exercise);
 	};
-	const handleSwapExerciseEvent = (event: { detail: { idOld: string; idNew: string } }) => {
-		const idOld: string = event.detail.idOld;
-		const idNew: string = event.detail.idNew;
-		const indexOld = $selectedExercises.findIndex((e: Exercise) => e.id === idOld);
-		const indexNew = $selectedExercises.findIndex((e: Exercise) => e.id === idNew);
-		selectedExercises.swap(indexOld, indexNew);
+	const handleSwapExercise = (idOld: string, idNew: string) => {
+		const indexOld = selectedExerciseStore.exercises.findIndex((e: Exercise) => e.id === idOld);
+		const indexNew = selectedExerciseStore.exercises.findIndex((e: Exercise) => e.id === idNew);
+		selectedExerciseStore.swap(indexOld, indexNew);
 	};
 	const handleRandomizeExercises = () => {
-		exercises.deselectAll();
-		selectedExercises.removeAll();
-		const randomIndexes = [];
+		exerciseStore.deselectAll();
+		selectedExerciseStore.removeAll();
+		const randomIndexes: number[] = [];
 		while (randomIndexes.length < randomCount) {
 			var r = Math.floor(Math.random() * filteredExercises.length);
 			if (randomIndexes.indexOf(r) === -1) randomIndexes.push(r);
 		}
 		randomIndexes.forEach((exerciseIndex: number) => {
 			const exercise: Exercise = filteredExercises[exerciseIndex];
-			exercises.select(exercise, true);
-			selectedExercises.add(exercise);
+			exerciseStore.select(exercise, true);
+			selectedExerciseStore.add(exercise);
 		});
 	};
 </script>
@@ -105,9 +109,9 @@
 			>
 				<button
 					class="block w-full bg-rose-500 rounded-md text-zinc-800 text-2xl disabled:bg-stone-400 transition-colors hover:bg-rose-600 hover:text-zinc-900"
-					disabled={$selectedExercises.length === 0}
+					disabled={selectedExerciseStore.exercises.length === 0}
 				>
-					{#if $selectedExercises.length === 0}
+					{#if selectedExerciseStore.exercises.length === 0}
 						<span class="block p-4">Select Exercises</span>
 					{:else}
 						<a class="block p-4" href="./workout" title="Start workout with selected exercises">
@@ -124,7 +128,7 @@
 				<label for="exerciseLength" class="flex flex-row items-center gap-4">
 					<span
 						class="flex-none w-24 px-3 py-2 bg-zinc-900 rounded-md text-3xl text-rose-500 text-center"
-						>{$workoutSettings.exerciseLength / 1000}s</span
+						>{workoutSettingsStore.settings.exerciseLength / 1000}s</span
 					>
 					<span class="flex-auto flex flex-col">
 						<span class="text-xl">Exercise Length</span>
@@ -135,14 +139,14 @@
 							step="5000"
 							min="10000"
 							max="180000"
-							bind:value={$workoutSettings.exerciseLength}
+							bind:value={workoutSettingsStore.settings.exerciseLength}
 						/>
 					</span>
 				</label>
 				<label for="restLength" class="flex flex-row items-center gap-4">
 					<span
 						class="flex-none w-24 px-3 py-2 bg-zinc-900 rounded-md text-3xl text-rose-500 text-center"
-						>{$workoutSettings.restLength / 1000}s</span
+						>{workoutSettingsStore.settings.restLength / 1000}s</span
 					>
 					<span class="flex-auto flex flex-col">
 						<span class="text-xl">Rest Length</span>
@@ -153,14 +157,14 @@
 							step="5000"
 							min="5000"
 							max="120000"
-							bind:value={$workoutSettings.restLength}
+							bind:value={workoutSettingsStore.settings.restLength}
 						/>
 					</span>
 				</label>
 				<label for="repetitions" class="flex flex-row items-center gap-4">
 					<span
 						class="flex-none w-24 px-3 py-2 bg-zinc-900 rounded-md text-3xl text-rose-500 text-center"
-						>{$workoutSettings.repetitions}</span
+						>{workoutSettingsStore.settings.repetitions}</span
 					>
 					<span class="flex-auto flex flex-col">
 						<span class="text-xl">Repetitions</span>
@@ -171,11 +175,11 @@
 							step="1"
 							min="1"
 							max="10"
-							bind:value={$workoutSettings.repetitions}
+							bind:value={workoutSettingsStore.settings.repetitions}
 						/>
 					</span>
 				</label>
-				{#if $workoutSettings.repetitions > 1}
+				{#if workoutSettingsStore.settings.repetitions > 1}
 					<div transition:fade={{ duration: 200 }}>
 						<div class="grid grid-cols-2 items-stretch justify-items-stretch gap-4">
 							{#each ['set', 'cycle'] as repetition}
@@ -188,14 +192,14 @@
 										id={repetition}
 										value={repetition}
 										name="setOrCycle"
-										bind:group={$workoutSettings.setOrCycle}
+										bind:group={workoutSettingsStore.settings.setOrCycle}
 										class="hidden peer"
 									/>
 									<span class="p-4">{repetition[0].toUpperCase()}{repetition.slice(1)}</span>
 									<span
 										class="flex-none flex items-center justify-center w-16 rounded-r-md bg-stone-400 text-zinc-800 peer-checked:bg-rose-500"
 									>
-										{#if $workoutSettings.setOrCycle === repetition}
+										{#if workoutSettingsStore.settings.setOrCycle === repetition}
 											<CheckCircle />
 										{:else}
 											<Circle />
@@ -224,7 +228,7 @@
 					</label>
 					<button
 						class="w-full mt-4 px-4 py-2 flex flex-row gap-4 justify-center items-center bg-rose-500 rounded-md text-2xl text-zinc-900 hover:bg-rose-400 hover:text-zinc-800 disabled:bg-stone-400"
-						on:click={handleRandomizeExercises}
+						onclick={handleRandomizeExercises}
 						disabled={randomCount === 0}
 					>
 						<span class="flex-none flex flex-row justify-center items-center"><Shuffle /></span>
@@ -278,7 +282,7 @@
 		>
 			<h2 class="md:fixed w-full pt-8 pb-4 bg-white text-2xl text-zinc-800">All Exercises</h2>
 			<div class="pt-0 md:pt-20">
-				<ExerciseList exercises={filteredExercises} on:selectExercise={handleSelectExerciseEvent} />
+				<ExerciseList exercises={filteredExercises} onselectexercise={handleSelectExercise} />
 			</div>
 		</div>
 		<div class="relative pb-8 overflow-auto md:overflow-scroll">
@@ -287,9 +291,9 @@
 			</h2>
 			<div class="pt-0 md:pt-20">
 				<DraggableExerciseList
-					exercises={$selectedExercises}
-					on:removeExercise={handleRemoveExerciseEvent}
-					on:swapExercise={handleSwapExerciseEvent}
+					exercises={selectedExerciseStore.exercises}
+					onremoveexercise={handleRemoveExercise}
+					onswapexercise={handleSwapExercise}
 				/>
 			</div>
 		</div>

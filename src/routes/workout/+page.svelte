@@ -1,5 +1,9 @@
 <script lang="ts">
-	import type { ExerciseStore, Exercise, WorkoutSettingsStore } from '$lib/types/customTypes';
+	import type {
+		SelectedExerciseStore,
+		Exercise,
+		WorkoutSettingsStore
+	} from '$lib/types/customTypes';
 	import { getContext } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
@@ -7,18 +11,18 @@
 	import { X, Pause, Play } from 'lucide-svelte';
 
 	// Stores
-	const selectedExercises: ExerciseStore = getContext('selectedExercises');
-	const workoutSettings: WorkoutSettingsStore = getContext('workoutSettings');
+	const selectedExerciseStore: SelectedExerciseStore = getContext('selectedExercises');
+	const workoutSettingsStore: WorkoutSettingsStore = getContext('workoutSettings');
 
-	let workoutExercises = $selectedExercises || [];
+	let workoutExercises = [...selectedExerciseStore.exercises];
 
-	if ($workoutSettings.repetitions > 1) {
-		const helperArray = Array($workoutSettings.repetitions).fill('');
-		if ($workoutSettings.setOrCycle === 'set') {
+	if (workoutSettingsStore.settings.repetitions > 1) {
+		const helperArray = Array(workoutSettingsStore.settings.repetitions).fill('');
+		if (workoutSettingsStore.settings.setOrCycle === 'set') {
 			workoutExercises = workoutExercises.flatMap((exercise: Exercise) =>
 				helperArray.map(() => exercise)
 			);
-		} else if ($workoutSettings.setOrCycle === 'cycle') {
+		} else if (workoutSettingsStore.settings.setOrCycle === 'cycle') {
 			workoutExercises = helperArray.flatMap(() => [...workoutExercises]);
 		}
 	}
@@ -26,13 +30,14 @@
 	const size = 128;
 	const trackWidth = 3;
 	const indicatorWidth = 3;
-	let intervalLength: number = $workoutSettings.restLength;
-	let paused: boolean = false;
-	let phase: string = 'rest';
-	let activeExerciseIndex: number = 0;
+	let intervalLength = $state(workoutSettingsStore.settings.restLength);
+	let paused = $state(false);
+	let phase = $state<string>('rest');
+	let activeExerciseIndex = $state(0);
 	const fullTime: number =
-		($workoutSettings.exerciseLength + $workoutSettings.restLength) * workoutExercises.length;
-	let remainingTime: number = fullTime;
+		(workoutSettingsStore.settings.exerciseLength + workoutSettingsStore.settings.restLength) *
+		workoutExercises.length;
+	let remainingTime = $state(fullTime);
 
 	const center = size / 2;
 	const radius = center - (trackWidth > indicatorWidth ? trackWidth : indicatorWidth);
@@ -41,8 +46,14 @@
 
 	// Animations
 	const animationFrames = [{ strokeDashoffset: dashArray }, { strokeDashoffset: 0 }];
-	const restAnimationOptions = { id: 'restA', duration: $workoutSettings.restLength };
-	const exerciseAnimationOptions = { id: 'exerciseA', duration: $workoutSettings.exerciseLength };
+	const restAnimationOptions = {
+		id: 'restA',
+		duration: workoutSettingsStore.settings.restLength
+	};
+	const exerciseAnimationOptions = {
+		id: 'exerciseA',
+		duration: workoutSettingsStore.settings.exerciseLength
+	};
 
 	// Audio Beeps
 	const beep = (frequency: number = 1240, duration: number = 0.2) => {
@@ -80,10 +91,10 @@
 
 			if (phase === 'rest') {
 				phase = 'exercise';
-				intervalLength = $workoutSettings.exerciseLength;
+				intervalLength = workoutSettingsStore.settings.exerciseLength;
 			} else {
 				phase = 'rest';
-				intervalLength = $workoutSettings.restLength;
+				intervalLength = workoutSettingsStore.settings.restLength;
 				activeExerciseIndex++;
 			}
 
@@ -93,7 +104,7 @@
 		if (
 			phase === 'exercise' &&
 			activeExercise &&
-			intervalLength === $workoutSettings.exerciseLength / 2
+			intervalLength === workoutSettingsStore.settings.exerciseLength / 2
 		) {
 			beep(850, 0.3);
 		}
@@ -104,36 +115,37 @@
 
 	let interval = setInterval(intervalCallback, 100);
 
-	$: if (browser) {
-		if (navigator.wakeLock !== undefined) {
-			navigator.wakeLock.request('screen').then((lock) => {
-				setTimeout(() => lock.release(), fullTime);
-			});
+	let activeExercise = $derived(workoutExercises[activeExerciseIndex || 0]);
+
+	let normalizedTime = $derived(((remainingTime - 1000) / fullTime) * 100);
+
+	$effect(() => {
+		if (browser) {
+			if (navigator.wakeLock !== undefined) {
+				navigator.wakeLock.request('screen').then((lock) => {
+					setTimeout(() => lock.release(), fullTime);
+				});
+			}
+
+			const indicatorElement = document.getElementById('wa-indicator');
+
+			let restAnimation = indicatorElement?.animate(animationFrames, restAnimationOptions);
+			let exerciseAnimation = indicatorElement?.animate(animationFrames, exerciseAnimationOptions);
+			restAnimation?.cancel();
+			exerciseAnimation?.cancel();
+
+			let animation = phase === 'rest' ? restAnimation : exerciseAnimation;
+
+			if (animation) {
+				animation.currentTime = intervalLength;
+			}
 		}
-
-		const indicatorElement = document.getElementById('wa-indicator');
-
-		let restAnimation = indicatorElement?.animate(animationFrames, restAnimationOptions);
-		let exerciseAnimation = indicatorElement?.animate(animationFrames, exerciseAnimationOptions);
-		restAnimation?.cancel();
-		exerciseAnimation?.cancel();
-		let animation = restAnimation;
-
-		animation = phase === 'rest' ? restAnimation : exerciseAnimation;
-
-		if (animation) {
-			animation.currentTime = intervalLength;
-		}
-	}
+	});
 
 	if (browser && workoutExercises.length === 0) {
 		clearInterval(interval);
 		goto('./');
 	}
-
-	$: activeExercise = workoutExercises[activeExerciseIndex || 0];
-
-	$: normalizedTime = ((remainingTime - 1000) / fullTime) * 100;
 
 	const handleBackButton = () => {
 		clearInterval(interval);
@@ -161,7 +173,7 @@
 		<a href="./" title="Back to setup" class="flex-none">
 			<button
 				class="flex-none aspect-square h-20 flex justify-center items-center p-4 bg-rose-500 rounded-md text-zinc-800 text-3xl hover:bg-rose-600 hover:text-zinc-900"
-				on:click={handleBackButton}
+				onclick={handleBackButton}
 			>
 				<X size="40" />
 			</button>
@@ -171,7 +183,7 @@
 		</div>
 		<div class="flex-none">
 			<button
-				on:click={handlePauseButton}
+				onclick={handlePauseButton}
 				disabled={remainingTime < 0}
 				class="aspect-square h-20 flex justify-center items-center p-4 bg-rose-500 rounded-md text-zinc-800 hover:bg-rose-600 hover:text-zinc-900 disabled:bg-stone-400 disabled:hover:text-zinc-800"
 			>

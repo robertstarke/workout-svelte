@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '../app.css';
 	import { setContext } from 'svelte';
-	import { writable } from 'svelte/store';
 	import type {
 		Exercise,
 		ExerciseStore,
@@ -10,6 +9,9 @@
 		WorkoutSettings
 	} from '$lib/types/customTypes';
 	import exerciseData from '$lib/data/exercises.json';
+	import type { Snippet } from 'svelte';
+
+	let { children }: { children: Snippet } = $props();
 
 	// exercises list store
 	const exerciseArray: Exercise[] = JSON.parse(JSON.stringify(exerciseData)).map(
@@ -18,54 +20,42 @@
 			selected: false
 		})
 	);
-	const exerciseWritable = writable(exerciseArray);
-	const exercises: ExerciseStore = {
-		subscribe: exerciseWritable.subscribe,
-		set: exerciseWritable.set,
-		update: exerciseWritable.update,
+
+	let exerciseList = $state(exerciseArray);
+
+	const exerciseStore: ExerciseStore = {
+		get exercises() {
+			return exerciseList;
+		},
 		select: (exercise: Exercise, selected: boolean): void => {
-			exerciseWritable.update(($exercises): Exercise[] => {
-				let changeIndex = $exercises.findIndex((e: Exercise) => e.id === exercise.id);
-				$exercises[changeIndex].selected = selected;
-				return $exercises;
-			});
+			const changeIndex = exerciseList.findIndex((e: Exercise) => e.id === exercise.id);
+			exerciseList[changeIndex].selected = selected;
 		},
 		deselectAll: () => {
-			exerciseWritable.update(($exercises) =>
-				$exercises.map((e: Exercise) => ({ ...e, selected: false }))
-			);
+			exerciseList.forEach((e) => (e.selected = false));
 		}
 	};
 
-	const selectedExerciseArray: Exercise[] = [];
-	const selectedWritable = writable(selectedExerciseArray);
-	const selectedExercises: SelectedExerciseStore = {
-		subscribe: selectedWritable.subscribe,
-		set: selectedWritable.set,
-		update: selectedWritable.update,
+	let selectedList: Exercise[] = $state([]);
+
+	const selectedExerciseStore: SelectedExerciseStore = {
+		get exercises() {
+			return selectedList;
+		},
 		add: (exercise: Exercise): void => {
-			selectedWritable.update(($selectedExercises): Exercise[] => [
-				...$selectedExercises,
-				exercise
-			]);
+			selectedList.push(exercise);
 		},
 		remove: (exercise: Exercise): void => {
-			selectedWritable.update(($selectedExercises): Exercise[] => {
-				const index = $selectedExercises.findIndex((e) => e.id === exercise.id);
-				if (index >= 0) {
-					return $selectedExercises.toSpliced(index, 1);
-				}
-				return $selectedExercises;
-			});
+			const index = selectedList.findIndex((e) => e.id === exercise.id);
+			if (index >= 0) {
+				selectedList.splice(index, 1);
+			}
 		},
 		removeAll: (): void => {
-			selectedWritable.update((): Exercise[] => []);
+			selectedList.length = 0;
 		},
 		swap: (indexOld: number, indexNew: number): void => {
-			selectedWritable.update(($selectedExercises): Exercise[] => {
-				$selectedExercises.splice(indexNew, 0, $selectedExercises.splice(indexOld, 1)[0]);
-				return $selectedExercises;
-			});
+			selectedList.splice(indexNew, 0, selectedList.splice(indexOld, 1)[0]);
 		}
 	};
 
@@ -75,15 +65,22 @@
 		repetitions: 1,
 		setOrCycle: 'cycle'
 	};
-	const workoutSettings: WorkoutSettingsStore = writable(workoutSettingsDefaults);
 
-	setContext('exercises', exercises);
-	setContext('selectedExercises', selectedExercises);
-	setContext('workoutSettings', workoutSettings);
+	let settingsState = $state(workoutSettingsDefaults);
+
+	const workoutSettingsStore: WorkoutSettingsStore = {
+		get settings() {
+			return settingsState;
+		}
+	};
+
+	setContext('exercises', exerciseStore);
+	setContext('selectedExercises', selectedExerciseStore);
+	setContext('workoutSettings', workoutSettingsStore);
 </script>
 
 <svelte:head>
-	<script src="/workout/DragDropTouch.js"></script>
+	<script src="/DragDropTouch.js"></script>
 </svelte:head>
 
-<slot />
+{@render children()}
